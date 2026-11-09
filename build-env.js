@@ -31,3 +31,4 @@ targetDirectories.forEach(dir => {
 });
 
 console.log(`[build-env] Completed! Backend URL set to: "${backendUrl || '(empty - will use automatic fallback)'}"`);
+

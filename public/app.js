@@ -1,8 +1,13 @@
+// State Management
 let currentTab = 'active';
 let activeStudents = [];
 let deletedStudents = [];
 let studentModalInstance = null;
 let healthCheckTimer = null;
+let searchDebounceTimer = null;
+
+const CACHE_KEY_ACTIVE = 'cached_active_students';
+const CACHE_KEY_DELETED = 'cached_deleted_students';
 
 /**
  * Resolves the backend root URL using the following priority:
@@ -12,23 +17,19 @@ let healthCheckTimer = null;
  * 4. Relative origin ("") for local development or direct backend hosting
  */
 function getBackendUrl() {
-    // 1. Manual user override
     const userCustom = localStorage.getItem('custom_backend_url');
     if (userCustom && userCustom.trim() !== '') {
         return userCustom.trim().replace(/\/+$/, '');
     }
 
-    // 2. Injected environment variable via window.__ENV__
     if (window.__ENV__ && window.__ENV__.BACKEND_URL && window.__ENV__.BACKEND_URL.trim() !== '') {
         return window.__ENV__.BACKEND_URL.trim().replace(/\/+$/, '');
     }
 
-    // 3. Fallback when deployed on Vercel
     if (window.location.hostname.includes('vercel.app')) {
         return 'https://crud-spring-boot-demo.onrender.com';
     }
 
-    // 4. Same-origin relative path for local development
     return '';
 }
 
@@ -60,12 +61,40 @@ function updateBackendUI() {
     }
 }
 
+/**
+ * Stale-While-Revalidate: Loads cached data instantly (0ms) from localStorage
+ */
+function loadCachedData() {
+    try {
+        const cachedActive = localStorage.getItem(CACHE_KEY_ACTIVE);
+        const cachedDeleted = localStorage.getItem(CACHE_KEY_DELETED);
+        if (cachedActive) activeStudents = JSON.parse(cachedActive);
+        if (cachedDeleted) deletedStudents = JSON.parse(cachedDeleted);
+
+        if (activeStudents.length > 0 || deletedStudents.length > 0) {
+            updateMetrics();
+            renderTable();
+        }
+    } catch (e) {
+        console.warn('Cache load warning:', e);
+    }
+}
+
+function saveCache() {
+    try {
+        localStorage.setItem(CACHE_KEY_ACTIVE, JSON.stringify(activeStudents));
+        localStorage.setItem(CACHE_KEY_DELETED, JSON.stringify(deletedStudents));
+    } catch (e) {}
+}
+
+/**
+ * Non-blocking background runtime configuration check
+ */
 async function loadRuntimeConfig() {
-    // Try fetching runtime config from Vercel Serverless Function if __ENV__ is empty
     if (!window.__ENV__ || !window.__ENV__.BACKEND_URL) {
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const timeoutId = setTimeout(() => controller.abort(), 1500);
             const res = await fetch('/api/config', { signal: controller.signal });
             clearTimeout(timeoutId);
             if (res.ok) {
@@ -73,16 +102,17 @@ async function loadRuntimeConfig() {
                 if (data && data.backendUrl) {
                     window.__ENV__ = window.__ENV__ || {};
                     window.__ENV__.BACKEND_URL = data.backendUrl;
+                    updateBackendUI();
                 }
             }
         } catch (e) {
-            // Expected in static or local environments
+            // Expected in pure static environments
         }
     }
-    updateBackendUI();
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+// Fast DOM Initialization
+document.addEventListener('DOMContentLoaded', () => {
     const modalEl = document.getElementById('studentModal');
     if (modalEl) {
         studentModalInstance = new bootstrap.Modal(modalEl);
@@ -94,22 +124,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         inputEl.value = savedBackend;
     }
 
-    // Load any runtime config if needed
-    await loadRuntimeConfig();
+    updateBackendUI();
 
-    // Fetch initial data
+    // 1. INSTANT FIRST RENDER: Render cached data in 0ms
+    loadCachedData();
+
+    // 2. FETCH IN PARALLEL: Asynchronously revalidate from backend
     fetchStudents();
     checkBackendHealth();
 
-    // Search filter listener
+    // 3. NON-BLOCKING: Check runtime config in background
+    loadRuntimeConfig();
+
+    // 4. FAST SEARCH: Ultra-responsive input with micro-debouncing
     const searchEl = document.getElementById('searchInput');
     if (searchEl) {
         searchEl.addEventListener('input', (e) => {
-            renderTable(e.target.value);
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                requestAnimationFrame(() => renderTable(e.target.value));
+            }, 30);
         });
     }
 
-    // Periodic health check every 45 seconds
+    // Periodic health check
     healthCheckTimer = setInterval(checkBackendHealth, 45000);
 });
 
@@ -123,7 +161,7 @@ function showToast(message, isError = false) {
 
     toastMessage.innerHTML = `<i class="bi ${isError ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'} fs-5"></i> <span>${message}</span>`;
 
-    const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+    const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
     toast.show();
 }
 
@@ -134,7 +172,7 @@ async function checkBackendHealth() {
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
         const res = await fetch(healthUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
 
@@ -155,20 +193,21 @@ async function fetchStudents(retryCount = 0) {
     const base = getApiBase();
     const tbody = document.getElementById('studentsTableBody');
 
-    try {
-        // Show waking-up notice if initial attempt takes time
-        if (retryCount === 0 && tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="text-center py-5 text-muted">
-                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                        Connecting to backend... <br>
-                        <small class="text-secondary">(If Render backend is sleeping on free tier, waking up takes ~30-40s)</small>
-                    </td>
-                </tr>
-            `;
-        }
+    // Only show full loading spinner if cache is empty
+    const hasData = activeStudents.length > 0 || deletedStudents.length > 0;
+    if (!hasData && retryCount === 0 && tbody) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-5 text-muted">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    Connecting to backend... <br>
+                    <small class="text-secondary">(If Render backend is sleeping on free tier, waking up takes ~30-40s)</small>
+                </td>
+            </tr>
+        `;
+    }
 
+    try {
         const [activeRes, deletedRes] = await Promise.all([
             fetch(base),
             fetch(`${base}/deleted`)
@@ -179,15 +218,17 @@ async function fetchStudents(retryCount = 0) {
         activeStudents = await activeRes.json();
         deletedStudents = deletedRes.ok ? await deletedRes.json() : [];
 
+        // Save fresh data to cache & update UI instantly
+        saveCache();
         updateMetrics();
         renderTable();
         checkBackendHealth();
     } catch (err) {
-        console.error('Fetch error:', err);
+        console.warn('Fetch error:', err);
 
         // Auto retry up to 2 times for Render cold starts
         if (retryCount < 2) {
-            if (tbody) {
+            if (!hasData && tbody) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="7" class="text-center py-5 text-primary">
@@ -202,23 +243,28 @@ async function fetchStudents(retryCount = 0) {
             return;
         }
 
-        showToast('Error connecting to backend API: ' + err.message, true);
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="text-center py-5 text-danger">
-                        <i class="bi bi-exclamation-octagon fs-1 d-block mb-2"></i>
-                        Could not connect to backend at <code>${base}</code>.<br>
-                        <small class="text-muted d-block mt-2">
-                            If your backend is deploying or sleeping on Render, please wait ~30 seconds and click Refresh.<br>
-                            You can also update the backend URL in <strong>API Config</strong> above.
-                        </small>
-                        <button class="btn btn-sm btn-outline-primary mt-3" onclick="fetchStudents(0)">
-                            <i class="bi bi-arrow-clockwise me-1"></i> Try Again
-                        </button>
-                    </td>
-                </tr>
-            `;
+        // If we already had cached data displayed, don't destroy the view, just notify
+        if (hasData) {
+            showToast('Backend is currently offline or sleeping. Showing cached records.', true);
+        } else {
+            showToast('Error connecting to backend API: ' + err.message, true);
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-danger">
+                            <i class="bi bi-exclamation-octagon fs-1 d-block mb-2"></i>
+                            Could not connect to backend at <code>${base}</code>.<br>
+                            <small class="text-muted d-block mt-2">
+                                If your backend is sleeping on Render, please wait ~30 seconds and click Refresh.<br>
+                                You can also update the backend URL in <strong>API Config</strong> above.
+                            </small>
+                            <button class="btn btn-sm btn-outline-primary mt-3" onclick="fetchStudents(0)">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Try Again
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
         }
     }
 }
@@ -229,19 +275,23 @@ function updateMetrics() {
     const tabActiveBadge = document.getElementById('tabActiveBadge');
     const tabDeletedBadge = document.getElementById('tabDeletedBadge');
 
-    if (metricActive) metricActive.textContent = activeStudents.length;
-    if (metricDeleted) metricDeleted.textContent = deletedStudents.length;
-    if (tabActiveBadge) tabActiveBadge.textContent = activeStudents.length;
-    if (tabDeletedBadge) tabDeletedBadge.textContent = deletedStudents.length;
+    const activeCount = activeStudents.length;
+    const deletedCount = deletedStudents.length;
+
+    if (metricActive) metricActive.textContent = activeCount;
+    if (metricDeleted) metricDeleted.textContent = deletedCount;
+    if (tabActiveBadge) tabActiveBadge.textContent = activeCount;
+    if (tabDeletedBadge) tabDeletedBadge.textContent = deletedCount;
 }
 
 function switchTab(tab) {
+    if (currentTab === tab) return;
     currentTab = tab;
     const tabActive = document.getElementById('tabActive');
     const tabDeleted = document.getElementById('tabDeleted');
     if (tabActive) tabActive.classList.toggle('active', tab === 'active');
     if (tabDeleted) tabDeleted.classList.toggle('active', tab === 'deleted');
-    renderTable();
+    requestAnimationFrame(() => renderTable());
 }
 
 function renderTable(filterQuery = '') {
@@ -272,13 +322,14 @@ function renderTable(filterQuery = '') {
         return;
     }
 
-    tbody.innerHTML = filtered.map(student => {
+    const html = filtered.map(student => {
         const initial = (student.name && student.name.length > 0) ? student.name.charAt(0).toUpperCase() : 'S';
         const isArchived = Boolean(student.deleted || student.isDeleted);
+        const isPending = Boolean(student._pending);
 
         return `
-            <tr class="student-row">
-                <td class="fw-semibold text-muted">#${student.id}</td>
+            <tr class="student-row ${isPending ? 'opacity-75' : ''}">
+                <td class="fw-semibold text-muted">#${student.id || '...'}</td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
                         <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex align-items-center justify-content-center"
@@ -286,7 +337,10 @@ function renderTable(filterQuery = '') {
                             ${initial}
                         </div>
                         <div>
-                            <div class="fw-semibold">${escapeHtml(student.name)}</div>
+                            <div class="fw-semibold">
+                                ${escapeHtml(student.name)}
+                                ${isPending ? '<span class="badge bg-secondary-subtle text-secondary ms-1 small">Syncing...</span>' : ''}
+                            </div>
                             <div class="text-muted small">${escapeHtml(student.email)}</div>
                         </div>
                     </div>
@@ -326,6 +380,8 @@ function renderTable(filterQuery = '') {
             </tr>
         `;
     }).join('');
+
+    tbody.innerHTML = html;
 }
 
 function escapeHtml(text) {
@@ -365,6 +421,10 @@ function prepareEditModal(id) {
     studentModalInstance.show();
 }
 
+/**
+ * OPTIMISTIC FORM SUBMISSION:
+ * Updates the UI immediately (0ms) and syncs in background.
+ */
 async function handleFormSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('studentId').value;
@@ -378,6 +438,35 @@ async function handleFormSubmit(e) {
         subject: document.getElementById('studentSubject').value.trim()
     };
 
+    // Close modal immediately for instant responsiveness
+    if (studentModalInstance) {
+        studentModalInstance.hide();
+    }
+
+    let originalStudent = null;
+    let tempId = null;
+
+    if (isEdit) {
+        const numId = parseInt(id, 10);
+        const index = activeStudents.findIndex(s => s.id === numId);
+        if (index !== -1) {
+            originalStudent = { ...activeStudents[index] };
+            activeStudents[index] = { ...originalStudent, ...payload, id: numId };
+        }
+        showToast('Updating student record...');
+    } else {
+        tempId = Date.now();
+        const optimisticStudent = { ...payload, id: tempId, _pending: true };
+        activeStudents.unshift(optimisticStudent);
+        showToast('Adding new student...');
+    }
+
+    // Render table & metrics instantly (0ms)
+    updateMetrics();
+    renderTable();
+    saveCache();
+
+    // Background network sync
     const url = isEdit ? `${getApiBase()}/${id}` : getApiBase();
     const method = isEdit ? 'PUT' : 'POST';
 
@@ -393,46 +482,154 @@ async function handleFormSubmit(e) {
             throw new Error(err.error || `HTTP ${res.status}`);
         }
 
-        studentModalInstance.hide();
-        showToast(isEdit ? 'Student record updated successfully!' : 'Student added successfully!');
-        await fetchStudents();
+        const serverData = await res.json();
+
+        if (!isEdit && serverData && serverData.id) {
+            // Replace temp optimistic student with real server record
+            const idx = activeStudents.findIndex(s => s.id === tempId);
+            if (idx !== -1) {
+                activeStudents[idx] = serverData;
+            }
+        }
+
+        showToast(isEdit ? 'Student record updated!' : 'Student added successfully!');
+        saveCache();
+        renderTable();
     } catch (err) {
+        // Rollback on failure
+        if (isEdit && originalStudent) {
+            const idx = activeStudents.findIndex(s => s.id === parseInt(id, 10));
+            if (idx !== -1) activeStudents[idx] = originalStudent;
+        } else if (!isEdit && tempId) {
+            activeStudents = activeStudents.filter(s => s.id !== tempId);
+        }
+        updateMetrics();
+        renderTable();
+        saveCache();
         showToast('Operation failed: ' + err.message, true);
     }
 }
 
+/**
+ * OPTIMISTIC SOFT DELETE:
+ * Moves student from active to deleted instantly (0ms)
+ */
 async function softDeleteStudent(id) {
     if (!confirm('Soft-delete this student? You can restore later from Trash.')) return;
+
+    const numId = parseInt(id, 10);
+    const index = activeStudents.findIndex(s => s.id === numId);
+    if (index === -1) return;
+
+    const [deletedItem] = activeStudents.splice(index, 1);
+    deletedItem.deleted = true;
+    deletedStudents.unshift(deletedItem);
+
+    // Instant UI update
+    updateMetrics();
+    renderTable();
+    saveCache();
+    showToast('Student moved to trash.');
+
+    // Background API call
     try {
-        const res = await fetch(`${getApiBase()}/${id}/soft-delete`, { method: 'PATCH' });
+        const res = await fetch(`${getApiBase()}/${numId}/soft-delete`, { method: 'PATCH' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        showToast('Student moved to trash.');
-        await fetchStudents();
     } catch (err) {
+        // Rollback
+        deletedStudents = deletedStudents.filter(s => s.id !== numId);
+        deletedItem.deleted = false;
+        activeStudents.splice(index, 0, deletedItem);
+        updateMetrics();
+        renderTable();
+        saveCache();
         showToast('Failed to soft-delete: ' + err.message, true);
     }
 }
 
+/**
+ * OPTIMISTIC RESTORE:
+ * Restores student from trash to active instantly (0ms)
+ */
 async function restoreStudent(id) {
+    const numId = parseInt(id, 10);
+    const index = deletedStudents.findIndex(s => s.id === numId);
+    if (index === -1) return;
+
+    const [restoredItem] = deletedStudents.splice(index, 1);
+    restoredItem.deleted = false;
+    activeStudents.unshift(restoredItem);
+
+    // Instant UI update
+    updateMetrics();
+    renderTable();
+    saveCache();
+    showToast('Student restored to active list!');
+
+    // Background API call
     try {
-        const res = await fetch(`${getApiBase()}/${id}/restore`, { method: 'PATCH' });
+        const res = await fetch(`${getApiBase()}/${numId}/restore`, { method: 'PATCH' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        showToast('Student restored to active list!');
-        await fetchStudents();
     } catch (err) {
-        showToast('Failed to restore student: ' + err.message, true);
+        // Rollback
+        activeStudents = activeStudents.filter(s => s.id !== numId);
+        restoredItem.deleted = true;
+        deletedStudents.splice(index, 0, restoredItem);
+        updateMetrics();
+        renderTable();
+        saveCache();
+        showToast('Failed to restore: ' + err.message, true);
     }
 }
 
+/**
+ * OPTIMISTIC PERMANENT DELETE:
+ * Removes student immediately (0ms)
+ */
 async function hardDeleteStudent(id) {
     if (!confirm('Permanently delete this student from the database? This cannot be undone.')) return;
+
+    const numId = parseInt(id, 10);
+    const activeIdx = activeStudents.findIndex(s => s.id === numId);
+    const deletedIdx = deletedStudents.findIndex(s => s.id === numId);
+
+    let removedItem = null;
+    let wasActive = true;
+    let originalIdx = 0;
+
+    if (activeIdx !== -1) {
+        [removedItem] = activeStudents.splice(activeIdx, 1);
+        originalIdx = activeIdx;
+        wasActive = true;
+    } else if (deletedIdx !== -1) {
+        [removedItem] = deletedStudents.splice(deletedIdx, 1);
+        originalIdx = deletedIdx;
+        wasActive = false;
+    } else {
+        return;
+    }
+
+    // Instant UI update
+    updateMetrics();
+    renderTable();
+    saveCache();
+    showToast('Student permanently deleted.');
+
+    // Background API call
     try {
-        const res = await fetch(`${getApiBase()}/${id}`, { method: 'DELETE' });
+        const res = await fetch(`${getApiBase()}/${numId}`, { method: 'DELETE' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        showToast('Student permanently deleted.');
-        await fetchStudents();
     } catch (err) {
-        showToast('Failed to delete student: ' + err.message, true);
+        // Rollback
+        if (wasActive) {
+            activeStudents.splice(originalIdx, 0, removedItem);
+        } else {
+            deletedStudents.splice(originalIdx, 0, removedItem);
+        }
+        updateMetrics();
+        renderTable();
+        saveCache();
+        showToast('Failed to permanently delete: ' + err.message, true);
     }
 }
 

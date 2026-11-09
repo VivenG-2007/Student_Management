@@ -100,3 +100,4 @@ This guide explains how to deploy both the **Spring Boot Backend** to **Render**
 ### Backend (Render):
 1. **CORS Connection:** Spring Boot reads `cors.allowed-origins=${FRONTEND_URL:*}` via `WebConfig.java`. It permits requests, credentials, and pre-flight `OPTIONS` requests from your Vercel domain.
 2. **Health Checks:** Render checks `/api/students/health` to confirm the container is healthy before routing traffic.
+
