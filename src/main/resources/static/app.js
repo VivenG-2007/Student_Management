@@ -2,50 +2,142 @@ let currentTab = 'active';
 let activeStudents = [];
 let deletedStudents = [];
 let studentModalInstance = null;
+let healthCheckTimer = null;
 
-function getApiBase() {
-    const custom = localStorage.getItem('custom_backend_url');
-    if (custom && custom.trim() !== '') {
-        return custom.trim().replace(/\/+$/, '') + '/api/students';
+/**
+ * Resolves the backend root URL using the following priority:
+ * 1. User manual override stored in localStorage
+ * 2. Injected window.__ENV__.BACKEND_URL (from Vercel build-env.js / env-config.js)
+ * 3. Default Render URL when running on Vercel domain (*.vercel.app)
+ * 4. Relative origin ("") for local development or direct backend hosting
+ */
+function getBackendUrl() {
+    // 1. Manual user override
+    const userCustom = localStorage.getItem('custom_backend_url');
+    if (userCustom && userCustom.trim() !== '') {
+        return userCustom.trim().replace(/\/+$/, '');
     }
-    return '/api/students';
+
+    // 2. Injected environment variable via window.__ENV__
+    if (window.__ENV__ && window.__ENV__.BACKEND_URL && window.__ENV__.BACKEND_URL.trim() !== '') {
+        return window.__ENV__.BACKEND_URL.trim().replace(/\/+$/, '');
+    }
+
+    // 3. Fallback when deployed on Vercel
+    if (window.location.hostname.includes('vercel.app')) {
+        return 'https://crud-spring-boot-demo.onrender.com';
+    }
+
+    // 4. Same-origin relative path for local development
+    return '';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    studentModalInstance = new bootstrap.Modal(document.getElementById('studentModal'));
-    
-    const savedBackend = localStorage.getItem('custom_backend_url');
-    if (savedBackend) {
-        document.getElementById('customBackendUrlInput').value = savedBackend;
-        document.getElementById('apiStatusBadge').textContent = 'Connected (Custom)';
+function getApiBase() {
+    const base = getBackendUrl();
+    return base ? `${base}/api/students` : '/api/students';
+}
+
+function updateBackendUI() {
+    const activeUrl = getBackendUrl() || `${window.location.origin}/api/students (same-origin)`;
+    const saved = localStorage.getItem('custom_backend_url');
+    const badgeEl = document.getElementById('apiStatusBadge');
+    const activeBadgeEl = document.getElementById('activeBackendUrlBadge');
+
+    if (activeBadgeEl) {
+        activeBadgeEl.textContent = activeUrl;
     }
 
+    if (badgeEl) {
+        if (saved) {
+            badgeEl.textContent = 'API: Custom';
+        } else if (window.__ENV__ && window.__ENV__.BACKEND_URL) {
+            badgeEl.textContent = 'API: Vercel Env';
+        } else if (window.location.hostname.includes('vercel.app')) {
+            badgeEl.textContent = 'API: Render (Default)';
+        } else {
+            badgeEl.textContent = 'API: Local';
+        }
+    }
+}
+
+async function loadRuntimeConfig() {
+    // Try fetching runtime config from Vercel Serverless Function if __ENV__ is empty
+    if (!window.__ENV__ || !window.__ENV__.BACKEND_URL) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const res = await fetch('/api/config', { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.backendUrl) {
+                    window.__ENV__ = window.__ENV__ || {};
+                    window.__ENV__.BACKEND_URL = data.backendUrl;
+                }
+            }
+        } catch (e) {
+            // Expected in static or local environments
+        }
+    }
+    updateBackendUI();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const modalEl = document.getElementById('studentModal');
+    if (modalEl) {
+        studentModalInstance = new bootstrap.Modal(modalEl);
+    }
+
+    const savedBackend = localStorage.getItem('custom_backend_url');
+    const inputEl = document.getElementById('customBackendUrlInput');
+    if (inputEl && savedBackend) {
+        inputEl.value = savedBackend;
+    }
+
+    // Load any runtime config if needed
+    await loadRuntimeConfig();
+
+    // Fetch initial data
     fetchStudents();
     checkBackendHealth();
 
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-        renderTable(e.target.value);
-    });
+    // Search filter listener
+    const searchEl = document.getElementById('searchInput');
+    if (searchEl) {
+        searchEl.addEventListener('input', (e) => {
+            renderTable(e.target.value);
+        });
+    }
+
+    // Periodic health check every 45 seconds
+    healthCheckTimer = setInterval(checkBackendHealth, 45000);
 });
 
 function showToast(message, isError = false) {
     const toastEl = document.getElementById('liveToast');
     const toastMessage = document.getElementById('toastMessage');
-    
+    if (!toastEl || !toastMessage) return;
+
     toastEl.classList.remove('bg-success', 'bg-danger');
     toastEl.classList.add(isError ? 'bg-danger' : 'bg-success');
-    
+
     toastMessage.innerHTML = `<i class="bi ${isError ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'} fs-5"></i> <span>${message}</span>`;
-    
-    const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
+
+    const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
     toast.show();
 }
 
 async function checkBackendHealth() {
     const healthUrl = getApiBase() + '/health';
     const statusEl = document.getElementById('backendStatusText');
+    if (!statusEl) return;
+
     try {
-        const res = await fetch(healthUrl);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const res = await fetch(healthUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         if (res.ok) {
             statusEl.textContent = 'Online';
             statusEl.className = 'fs-6 fw-bold text-success';
@@ -54,60 +146,110 @@ async function checkBackendHealth() {
             statusEl.className = 'fs-6 fw-bold text-warning';
         }
     } catch (e) {
-        statusEl.textContent = 'Connecting...';
+        statusEl.textContent = 'Waking up / Standby';
         statusEl.className = 'fs-6 fw-bold text-secondary';
     }
 }
 
-async function fetchStudents() {
+async function fetchStudents(retryCount = 0) {
     const base = getApiBase();
+    const tbody = document.getElementById('studentsTableBody');
+
     try {
+        // Show waking-up notice if initial attempt takes time
+        if (retryCount === 0 && tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                        Connecting to backend... <br>
+                        <small class="text-secondary">(If Render backend is sleeping on free tier, waking up takes ~30-40s)</small>
+                    </td>
+                </tr>
+            `;
+        }
+
         const [activeRes, deletedRes] = await Promise.all([
             fetch(base),
             fetch(`${base}/deleted`)
         ]);
 
         if (!activeRes.ok) throw new Error(`HTTP ${activeRes.status} fetching active students`);
-        
+
         activeStudents = await activeRes.json();
         deletedStudents = deletedRes.ok ? await deletedRes.json() : [];
 
         updateMetrics();
         renderTable();
+        checkBackendHealth();
     } catch (err) {
         console.error('Fetch error:', err);
+
+        // Auto retry up to 2 times for Render cold starts
+        if (retryCount < 2) {
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-primary">
+                            <div class="spinner-border text-primary mb-3" role="status"></div>
+                            <div class="fw-semibold">Backend is waking up from idle...</div>
+                            <small class="text-muted">Retrying connection (${retryCount + 1}/2)...</small>
+                        </td>
+                    </tr>
+                `;
+            }
+            setTimeout(() => fetchStudents(retryCount + 1), 6000);
+            return;
+        }
+
         showToast('Error connecting to backend API: ' + err.message, true);
-        const tbody = document.getElementById('studentsTableBody');
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" class="text-center py-5 text-danger">
-                    <i class="bi bi-exclamation-octagon fs-1 d-block mb-2"></i>
-                    Could not connect to backend at <code>${getApiBase()}</code>.<br>
-                    <small class="text-muted">Ensure Spring Boot is running, or set your Render backend URL in API Config.</small>
-                </td>
-            </tr>
-        `;
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-danger">
+                        <i class="bi bi-exclamation-octagon fs-1 d-block mb-2"></i>
+                        Could not connect to backend at <code>${base}</code>.<br>
+                        <small class="text-muted d-block mt-2">
+                            If your backend is deploying or sleeping on Render, please wait ~30 seconds and click Refresh.<br>
+                            You can also update the backend URL in <strong>API Config</strong> above.
+                        </small>
+                        <button class="btn btn-sm btn-outline-primary mt-3" onclick="fetchStudents(0)">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Try Again
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
     }
 }
 
 function updateMetrics() {
-    document.getElementById('metricActiveCount').textContent = activeStudents.length;
-    document.getElementById('metricDeletedCount').textContent = deletedStudents.length;
-    document.getElementById('tabActiveBadge').textContent = activeStudents.length;
-    document.getElementById('tabDeletedBadge').textContent = deletedStudents.length;
+    const metricActive = document.getElementById('metricActiveCount');
+    const metricDeleted = document.getElementById('metricDeletedCount');
+    const tabActiveBadge = document.getElementById('tabActiveBadge');
+    const tabDeletedBadge = document.getElementById('tabDeletedBadge');
+
+    if (metricActive) metricActive.textContent = activeStudents.length;
+    if (metricDeleted) metricDeleted.textContent = deletedStudents.length;
+    if (tabActiveBadge) tabActiveBadge.textContent = activeStudents.length;
+    if (tabDeletedBadge) tabDeletedBadge.textContent = deletedStudents.length;
 }
 
 function switchTab(tab) {
     currentTab = tab;
-    document.getElementById('tabActive').classList.toggle('active', tab === 'active');
-    document.getElementById('tabDeleted').classList.toggle('active', tab === 'deleted');
+    const tabActive = document.getElementById('tabActive');
+    const tabDeleted = document.getElementById('tabDeleted');
+    if (tabActive) tabActive.classList.toggle('active', tab === 'active');
+    if (tabDeleted) tabDeleted.classList.toggle('active', tab === 'deleted');
     renderTable();
 }
 
 function renderTable(filterQuery = '') {
-    const query = (filterQuery || document.getElementById('searchInput').value || '').toLowerCase().trim();
+    const searchInput = document.getElementById('searchInput');
+    const query = (filterQuery || (searchInput ? searchInput.value : '') || '').toLowerCase().trim();
     const students = currentTab === 'active' ? activeStudents : deletedStudents;
     const tbody = document.getElementById('studentsTableBody');
+    if (!tbody) return;
 
     const filtered = students.filter(s => {
         if (!query) return true;
@@ -132,7 +274,7 @@ function renderTable(filterQuery = '') {
 
     tbody.innerHTML = filtered.map(student => {
         const initial = (student.name && student.name.length > 0) ? student.name.charAt(0).toUpperCase() : 'S';
-        const isArchived = student.deleted || student.isDeleted;
+        const isArchived = Boolean(student.deleted || student.isDeleted);
 
         return `
             <tr class="student-row">
@@ -295,25 +437,28 @@ async function hardDeleteStudent(id) {
 }
 
 function saveBackendUrl() {
-    const val = document.getElementById('customBackendUrlInput').value.trim();
+    const input = document.getElementById('customBackendUrlInput');
+    const val = input ? input.value.trim() : '';
+
     if (val) {
         localStorage.setItem('custom_backend_url', val);
-        document.getElementById('apiStatusBadge').textContent = 'Custom API';
     } else {
         localStorage.removeItem('custom_backend_url');
-        document.getElementById('apiStatusBadge').textContent = 'Default API';
     }
+
     const modalEl = document.getElementById('settingsModal');
     const modal = bootstrap.Modal.getInstance(modalEl);
     if (modal) modal.hide();
-    showToast('Backend configuration updated.');
-    fetchStudents();
+
+    updateBackendUI();
+    showToast('Backend configuration saved.');
+    fetchStudents(0);
     checkBackendHealth();
 }
 
 function resetBackendUrl() {
     localStorage.removeItem('custom_backend_url');
-    document.getElementById('customBackendUrlInput').value = '';
+    const input = document.getElementById('customBackendUrlInput');
+    if (input) input.value = '';
     saveBackendUrl();
 }
-

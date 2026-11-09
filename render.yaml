@@ -14,3 +14,5 @@ services:
         value: postgres.vkfsgkryhbrzffqtffpj
       - key: SPRING_DATASOURCE_PASSWORD
         value: viven123viven
+      - key: FRONTEND_URL
+        value: "*"

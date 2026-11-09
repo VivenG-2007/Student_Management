@@ -1,14 +1,16 @@
 {
   "version": 2,
+  "buildCommand": "node build-env.js",
   "outputDirectory": "public",
   "cleanUrls": true,
-  "routes": [
+  "rewrites": [
     {
-      "handle": "filesystem"
+      "source": "/api/config",
+      "destination": "/api/config.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ]
 }

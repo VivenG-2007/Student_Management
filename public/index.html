@@ -207,12 +207,14 @@
                 </div>
                 <div class="modal-body">
                     <p class="text-muted small">
-                        If deployed on Vercel, specify your Render backend URL below (e.g. <code>https://crud-spring-boot-demo.onrender.com</code>).
-                        Leave empty to use the default relative endpoint (<code>/api/students</code>).
+                        This frontend connects to your Spring Boot backend on Render using the <code>BACKEND_URL</code> environment variable (or manual override).
                     </p>
                     <div class="mb-3">
                         <label class="form-label small fw-semibold">Backend API URL</label>
-                        <input type="url" id="customBackendUrlInput" class="form-control" placeholder="https://your-service.onrender.com">
+                        <input type="url" id="customBackendUrlInput" class="form-control" placeholder="https://crud-spring-boot-demo.onrender.com">
+                        <div class="form-text mt-2 small">
+                            <strong>Active Target:</strong> <code id="activeBackendUrlBadge">Detecting...</code>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
@@ -224,6 +226,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="env-config.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
