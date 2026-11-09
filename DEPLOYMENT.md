@@ -45,7 +45,8 @@ This guide explains how to deploy both the **Spring Boot Backend** to **Render**
 2. Connect your GitHub repository (`Student_Management`).
 3. Choose **Docker** as the runtime.
 4. Set **Branch** to `main`.
-5. Under **Health Check Path**, enter: `/api/students/health`.
+5. Set **Dockerfile Path** to `./Dockerfile.render` (if using blueprint `render.yaml`, this is configured automatically).
+6. Under **Health Check Path**, enter: `/api/students/health`.
 6. Under **Environment Variables**, add:
    | Key | Value | Description |
    |-----|-------|-------------|

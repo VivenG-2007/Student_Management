@@ -34,3 +34,4 @@ if (fs.existsSync(staticDir)) {
 }
 
 console.log(`[build-env] Success! Backend URL configured: "${backendUrl || '(empty - will use automatic fallback)'}"`);
+

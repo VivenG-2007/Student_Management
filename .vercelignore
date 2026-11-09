@@ -1,0 +1,12 @@
+# Ignore backend files for Vercel deployment
+Dockerfile*
+*.Dockerfile
+.dockerignore
+render.yaml
+pom.xml
+mvnw
+mvnw.cmd
+.mvn
+src
+target
+.idea
