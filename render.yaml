@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: crud-spring-boot-demo
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/students/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require
+      - key: SPRING_DATASOURCE_USERNAME
+        value: postgres.vkfsgkryhbrzffqtffpj
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: viven123viven

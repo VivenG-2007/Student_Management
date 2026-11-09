@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top py-2">
+        <div class="container">
+            <a class="navbar-brand-custom text-decoration-none" href="#">
+                <i class="bi bi-mortarboard-fill text-primary"></i>
+                <span>StudentHub</span>
+                <span class="badge bg-light text-secondary border ms-1" style="font-size: 0.7rem; font-weight: 500;">Java Spring Boot + PostgreSQL</span>
+            </a>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                    <i class="bi bi-gear-fill me-1"></i> <span id="apiStatusBadge">API Config</span>
+                </button>
+                <button type="button" class="btn btn-primary-custom d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#studentModal" onclick="prepareCreateModal()">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>Add Student</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+
+        <!-- Toast Notifications Container -->
+        <div class="position-fixed top-0 end-0 p-3" style="z-index: 1090">
+            <div id="liveToast" class="toast align-items-center border-0 shadow-lg text-white" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body d-flex align-items-center gap-2" id="toastMessage">
+                        Operation notification
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Section -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-primary-subtle text-primary">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Active Students</div>
+                        <div class="fs-4 fw-bold" id="metricActiveCount">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-danger-subtle text-danger">
+                        <i class="bi bi-trash3-fill"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Archived (Soft Deleted)</div>
+                        <div class="fs-4 fw-bold" id="metricDeletedCount">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-success-subtle text-success">
+                        <i class="bi bi-database-check"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Backend Connection</div>
+                        <div class="fs-6 fw-bold text-success" id="backendStatusText">Checking...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-info-subtle text-info">
+                        <i class="bi bi-cloud-arrow-up-fill"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Deploy Target</div>
+                        <div class="fs-6 fw-bold text-secondary">Render &amp; Vercel</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Card Section -->
+        <div class="card-custom">
+            <!-- Filter & Tabs Bar -->
+            <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <ul class="nav nav-pills" id="viewTabs">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="tabActive" onclick="switchTab('active')">
+                            <i class="bi bi-person-check me-1"></i> Active Students
+                            <span class="badge rounded-pill bg-white text-dark ms-1" id="tabActiveBadge">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="tabDeleted" onclick="switchTab('deleted')">
+                            <i class="bi bi-archive me-1"></i> Trash / Archived
+                            <span class="badge rounded-pill bg-secondary ms-1" id="tabDeletedBadge">0</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2" style="max-width: 340px; width: 100%;">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Filter by name, roll, subject...">
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="fetchStudents()" title="Refresh">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table of Students -->
+            <div class="table-responsive">
+                <table class="table table-custom align-middle mb-0" id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Student Details</th>
+                            <th>Roll No</th>
+                            <th>Subject</th>
+                            <th>Age</th>
+                            <th>Status</th>
+                            <th class="text-end" style="width: 170px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                Loading student records...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Add / Edit Modal -->
+    <div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <form id="studentForm" onsubmit="handleFormSubmit(event)">
+                    <input type="hidden" id="studentId">
+                    <div class="modal-header border-bottom-0 pb-0">
+                        <h5 class="modal-title fw-bold" id="studentModalLabel">
+                            <i class="bi bi-person-plus text-primary me-1"></i> Add New Student
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Full Name</label>
+                            <input type="text" id="studentName" class="form-control" placeholder="e.g. Rahul Sharma" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Email Address</label>
+                            <input type="email" id="studentEmail" class="form-control" placeholder="e.g. rahul@example.com" required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Roll Number</label>
+                                <input type="number" id="studentRollno" class="form-control" placeholder="e.g. 101" required min="1">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Age</label>
+                                <input type="number" id="studentAge" class="form-control" placeholder="e.g. 20" required min="5" max="100">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Subject / Course</label>
+                            <input type="text" id="studentSubject" class="form-control" placeholder="e.g. Computer Science" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="saveStudentBtn" class="btn btn-primary-custom">Save Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Config Modal (for Vercel deployment pointing to Render backend) -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="settingsModalLabel">
+                        <i class="bi bi-sliders text-primary me-1"></i> Backend Connection
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">
+                        If deployed on Vercel, specify your Render backend URL below (e.g. <code>https://crud-spring-boot-demo.onrender.com</code>).
+                        Leave empty to use the default relative endpoint (<code>/api/students</code>).
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Backend API URL</label>
+                        <input type="url" id="customBackendUrlInput" class="form-control" placeholder="https://your-service.onrender.com">
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-3" onclick="resetBackendUrl()">Reset to Default</button>
+                    <button type="button" class="btn btn-primary-custom" onclick="saveBackendUrl()">Save &amp; Reconnect</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
