@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "buildCommand": "node build-env.js",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

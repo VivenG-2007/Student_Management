@@ -24,11 +24,14 @@ const targetDirectories = [
 
 targetDirectories.forEach(dir => {
   if (fs.existsSync(dir)) {
-    const filePath = path.join(dir, 'env-config.js');
-    fs.writeFileSync(filePath, envFileContent, 'utf8');
-    console.log(`[build-env] Wrote env-config.js to ${filePath}`);
+    try {
+      const filePath = path.join(dir, 'env-config.js');
+      fs.writeFileSync(filePath, envFileContent, 'utf8');
+      console.log(`[build-env] Wrote env-config.js to ${filePath}`);
+    } catch (e) {
+      console.warn(`[build-env] Could not write to ${dir}:`, e.message);
+    }
   }
 });
 
-console.log(`[build-env] Completed! Backend URL set to: "${backendUrl || '(empty - will use automatic fallback)'}"`);
-
+console.log(`[build-env] Success! Backend URL configured: "${backendUrl || '(empty - will use automatic fallback)'}"`);
