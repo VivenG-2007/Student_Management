@@ -15,7 +15,7 @@ public interface StudentRepositories extends JpaRepository<Student, Long> {
     @Query("SELECT s FROM Student s WHERE s.id = :id AND (s.isDeleted = false OR s.isDeleted IS NULL)")
     Optional<Student> findActiveById(@Param("id") Long id);
 
-    @Query("SELECT s FROM Student s WHERE s.isDeleted = false OR s.isDeleted IS NULL ORDER BY s.id ASC")
+    @Query("SELECT s FROM Student s WHERE s.isDeleted = false OR s.isDeleted IS NULL ORDER BY s.rollno ASC, s.id ASC")
     List<Student> findAllActive();
 
     @Query("SELECT s FROM Student s WHERE s.isDeleted = true ORDER BY s.id ASC")
@@ -24,4 +24,11 @@ public interface StudentRepositories extends JpaRepository<Student, Long> {
     Optional<Student> findByIdAndIsDeletedFalse(Long id);
 
     List<Student> findByIsDeletedFalse();
+
+    Optional<Student> findByRollnoAndIsDeletedFalse(int rollno);
+
+    Optional<Student> findByEmailAndIsDeletedFalse(String email);
+
+    @Query("SELECT s FROM Student s WHERE (s.rollno = :roll OR s.email = :email) AND (s.isDeleted = false OR s.isDeleted IS NULL)")
+    Optional<Student> findByRollnoOrEmail(@Param("roll") int roll, @Param("email") String email);
 }

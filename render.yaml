@@ -3,7 +3,7 @@ services:
     name: crud-spring-boot-demo
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile.render
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /api/students/health
     envVars:
       - key: PORT

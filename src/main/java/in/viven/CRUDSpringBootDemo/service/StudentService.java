@@ -19,11 +19,22 @@ public class StudentService {
     public Student createStudent(Student studentreq) {
         studentreq.setId(null);
         studentreq.setDeleted(false);
+        if (studentreq.getPassword() == null || studentreq.getPassword().trim().isEmpty()) {
+            studentreq.setPassword(studentreq.getRollno() > 0 ? String.valueOf(studentreq.getRollno()) : "student123");
+        }
         return studentRepositories.save(studentreq);
     }
 
     public Student getStudent(Long id) {
         return studentRepositories.findActiveById(id).orElse(null);
+    }
+
+    public Optional<Student> findByRollno(int rollno) {
+        return studentRepositories.findByRollnoAndIsDeletedFalse(rollno);
+    }
+
+    public Optional<Student> findByEmail(String email) {
+        return studentRepositories.findByEmailAndIsDeletedFalse(email);
     }
 
     public List<Student> getAllStudents() {
@@ -54,6 +65,9 @@ public class StudentService {
         }
         if (studentReq.getSubject() != null && !studentReq.getSubject().trim().isEmpty()) {
             studentToSave.setSubject(studentReq.getSubject().trim());
+        }
+        if (studentReq.getPassword() != null && !studentReq.getPassword().trim().isEmpty()) {
+            studentToSave.setPassword(studentReq.getPassword().trim());
         }
         studentToSave.setDeleted(false);
         return studentRepositories.save(studentToSave);

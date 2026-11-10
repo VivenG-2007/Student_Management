@@ -18,18 +18,20 @@ public class Student {
     private String email;
     private int rollno;
     private String subject;
+    private String password;
     private Boolean isDeleted = false;
 
     public Student() {
     }
 
-    public Student(Long id, String name, int age, String email, int rollno, String subject, Boolean isDeleted) {
+    public Student(Long id, String name, int age, String email, int rollno, String subject, String password, Boolean isDeleted) {
         this.id = id;
         this.name = name;
         this.age = age;
         this.email = email;
         this.rollno = rollno;
         this.subject = subject;
+        this.password = password != null && !password.trim().isEmpty() ? password.trim() : String.valueOf(rollno);
         this.isDeleted = isDeleted != null ? isDeleted : false;
     }
 
@@ -79,6 +81,14 @@ public class Student {
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Boolean getDeleted() {

@@ -1,16 +1,5 @@
 {
-  "version": 2,
-  "buildCommand": "node build-env.js",
-  "outputDirectory": "public",
-  "cleanUrls": true,
-  "rewrites": [
-    {
-      "source": "/api/config",
-      "destination": "/api/config.js"
-    },
-    {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
-    }
-  ]
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/.next",
+  "framework": "nextjs"
 }
