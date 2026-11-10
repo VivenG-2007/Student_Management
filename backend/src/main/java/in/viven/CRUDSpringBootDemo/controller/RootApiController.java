@@ -31,3 +31,4 @@ public class RootApiController {
         return ResponseEntity.ok(info);
     }
 }
+

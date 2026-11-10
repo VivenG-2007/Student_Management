@@ -68,7 +68,7 @@ export default function StudentDashboard() {
   const statusColors = getStatusColor(pct);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
       <Navbar role="STUDENT" user={student} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -118,9 +118,9 @@ export default function StudentDashboard() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Attendance Percentage Main Card */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex items-center justify-between">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Attendance %</span>
+                <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Attendance %</span>
                 <div className={`text-3xl font-extrabold mt-1 ${statusColors.text}`}>
                   {pct}%
                 </div>
@@ -135,7 +135,7 @@ export default function StudentDashboard() {
               <div className="relative w-16 h-16 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                   <path
-                    className="text-slate-100"
+                    className="text-slate-100 dark:text-slate-700"
                     strokeWidth="3.8"
                     stroke="currentColor"
                     fill="none"
@@ -151,35 +151,35 @@ export default function StudentDashboard() {
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   />
                 </svg>
-                <span className="absolute text-[11px] font-bold text-slate-700">{Math.round(pct)}%</span>
+                <span className="absolute text-[11px] font-bold text-slate-700 dark:text-slate-200">{Math.round(pct)}%</span>
               </div>
             </div>
 
             {/* Present Days Card */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Present Days</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+              <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Present Days</span>
               <div className="text-3xl font-extrabold text-emerald-600 mt-1">
                 {attendance?.presentDays ?? 0}
               </div>
-              <p className="text-xs text-slate-500 mt-2">Classes attended</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Classes attended</p>
             </div>
 
             {/* Absent Days Card */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Absent Days</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+              <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Absent Days</span>
               <div className="text-3xl font-extrabold text-rose-600 mt-1">
                 {attendance?.absentDays ?? 0}
               </div>
-              <p className="text-xs text-slate-500 mt-2">Classes missed</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Classes missed</p>
             </div>
 
             {/* Total Classes Card */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Sessions</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+              <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Sessions</span>
               <div className="text-3xl font-extrabold text-slate-800 mt-1">
                 {attendance?.totalClasses ?? 0}
               </div>
-              <p className="text-xs text-slate-500 mt-2">Total working days recorded</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Total working days recorded</p>
             </div>
           </div>
         )}
@@ -189,13 +189,13 @@ export default function StudentDashboard() {
           {/* Detailed Attendance History (2 columns) */}
           <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 <span>Attendance Log by Date</span>
               </h2>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
                 {attendance?.records?.length || 0} total records
               </span>
             </div>
@@ -218,16 +218,16 @@ export default function StudentDashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                    <tr className="border-b border-slate-100 dark:border-slate-800 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                       <th className="py-3 px-4">Date</th>
                       <th className="py-3 px-4">Status</th>
                       <th className="py-3 px-4">Marked By</th>
                       <th className="py-3 px-4">Remarks</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {attendance.records.map((rec) => (
-                      <tr key={rec.id} className="hover:bg-slate-50/80 transition">
+                      <tr key={rec.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition">
                         <td className="py-3 px-4 font-medium text-slate-700">{rec.date}</td>
                         <td className="py-3 px-4">
                           {rec.status === 'PRESENT' ? (
@@ -242,7 +242,7 @@ export default function StudentDashboard() {
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-4 text-xs text-slate-500">{rec.markedBy || 'admin'}</td>
+                        <td className="py-3 px-4 text-xs text-slate-500 dark:text-slate-400">{rec.markedBy || 'admin'}</td>
                         <td className="py-3 px-4 text-xs text-slate-400">{rec.remarks || '-'}</td>
                       </tr>
                     ))}
@@ -253,8 +253,8 @@ export default function StudentDashboard() {
           </div>
 
           {/* Student Profile Info Card (1 column) */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm h-fit">
-            <h2 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-sm h-fit">
+            <h2 className="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
               <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -262,25 +262,25 @@ export default function StudentDashboard() {
             </h2>
 
             <div className="space-y-3.5 text-xs">
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="text-slate-400 block font-medium">Full Name</span>
-                <span className="text-slate-800 font-bold text-sm">{student?.name || '-'}</span>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                <span className="text-slate-400 dark:text-slate-500 block font-medium">Full Name</span>
+                <span className="text-slate-800 dark:text-slate-100 font-bold text-sm">{student?.name || '-'}</span>
               </div>
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="text-slate-400 block font-medium">Roll Number</span>
-                <span className="text-slate-800 font-bold text-sm">#{student?.rollno || '-'}</span>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                <span className="text-slate-400 dark:text-slate-500 block font-medium">Roll Number</span>
+                <span className="text-slate-800 dark:text-slate-100 font-bold text-sm">#{student?.rollno || '-'}</span>
               </div>
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="text-slate-400 block font-medium">Email Address</span>
-                <span className="text-slate-800 font-semibold">{student?.email || '-'}</span>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                <span className="text-slate-400 dark:text-slate-500 block font-medium">Email Address</span>
+                <span className="text-slate-800 dark:text-slate-200 font-semibold">{student?.email || '-'}</span>
               </div>
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="text-slate-400 block font-medium">Subject / Course</span>
-                <span className="text-slate-800 font-semibold">{student?.subject || '-'}</span>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                <span className="text-slate-400 dark:text-slate-500 block font-medium">Subject / Course</span>
+                <span className="text-slate-800 dark:text-slate-200 font-semibold">{student?.subject || '-'}</span>
               </div>
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="text-slate-400 block font-medium">Age</span>
-                <span className="text-slate-800 font-semibold">{student?.age ? `${student.age} years` : '-'}</span>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                <span className="text-slate-400 dark:text-slate-500 block font-medium">Age</span>
+                <span className="text-slate-800 dark:text-slate-200 font-semibold">{student?.age ? `${student.age} years` : '-'}</span>
               </div>
             </div>
           </div>

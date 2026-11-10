@@ -254,7 +254,7 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
       <Navbar role="ADMIN" user={adminUser} />
 
       {/* Floating Toast Notification */}
@@ -272,13 +272,13 @@ export default function AdminDashboard() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Navigation Tabs Header */}
-        <div className="bg-white rounded-2xl p-2 border border-slate-200/80 shadow-sm flex flex-wrap gap-1">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-2 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-wrap gap-1">
           <button
             onClick={() => setActiveTab('attendance')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
               activeTab === 'attendance'
                 ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             <span>📅 Mark Attendance</span>
@@ -289,7 +289,7 @@ export default function AdminDashboard() {
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
               activeTab === 'summary'
                 ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             <span>📊 Attendance Summary %</span>
@@ -300,11 +300,11 @@ export default function AdminDashboard() {
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
               activeTab === 'students'
                 ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             <span>👥 Students Directory</span>
-            <span className="bg-slate-100 text-slate-700 text-[10px] px-1.5 py-0.5 rounded-full font-mono">
+            <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] px-1.5 py-0.5 rounded-full font-mono">
               {students.length}
             </span>
           </button>
@@ -314,7 +314,7 @@ export default function AdminDashboard() {
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
               activeTab === 'trash'
                 ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             <span>🗑️ Trash</span>
@@ -326,24 +326,24 @@ export default function AdminDashboard() {
 
         {/* TAB 1: MARK ATTENDANCE */}
         {activeTab === 'attendance' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div>
-                <h2 className="text-xl font-black text-slate-800">Mark Daily Attendance</h2>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <h2 className="text-xl font-black text-slate-800 dark:text-white">Mark Daily Attendance</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Select a date and toggle student attendance status
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 {/* Date Picker */}
-                <div className="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                  <span className="text-xs font-semibold text-slate-600">Date:</span>
+                <div className="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Date:</span>
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => handleDateChange(e.target.value)}
-                    className="text-xs font-medium bg-transparent border-0 focus:outline-none cursor-pointer"
+                    className="text-xs font-medium bg-transparent border-0 focus:outline-none cursor-pointer dark:text-slate-200 dark:[color-scheme:dark]"
                   />
                 </div>
 
@@ -380,7 +380,7 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  <tr className="border-b border-slate-100 dark:border-slate-800 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                     <th className="py-3 px-4">Roll</th>
                     <th className="py-3 px-4">Student</th>
                     <th className="py-3 px-4">Course</th>
@@ -388,7 +388,7 @@ export default function AdminDashboard() {
                     <th className="py-3 px-4">Remarks</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {loadingAttendance ? (
                     <>
                       <TableRowSkeleton cols={5} />
@@ -397,7 +397,7 @@ export default function AdminDashboard() {
                     </>
                   ) : attendanceList.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-12 text-slate-400">
+                      <td colSpan="5" className="text-center py-12 text-slate-400 dark:text-slate-500">
                         No active students found in directory. Add students to begin marking attendance.
                       </td>
                     </tr>
@@ -406,15 +406,15 @@ export default function AdminDashboard() {
                       const currentStatus = attendanceChanges[item.id] || 'PRESENT';
 
                       return (
-                        <tr key={item.id} className="hover:bg-slate-50/60 transition">
-                          <td className="py-3 px-4 font-mono text-xs font-semibold text-slate-600">
+                        <tr key={item.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition">
+                          <td className="py-3 px-4 font-mono text-xs font-semibold text-slate-600 dark:text-slate-400">
                             #{item.rollno}
                           </td>
                           <td className="py-3 px-4">
-                            <div className="font-semibold text-slate-800">{item.name}</div>
-                            <div className="text-xs text-slate-400">{item.email}</div>
+                            <div className="font-semibold text-slate-800 dark:text-slate-100">{item.name}</div>
+                            <div className="text-xs text-slate-400 dark:text-slate-500">{item.email}</div>
                           </td>
-                          <td className="py-3 px-4 text-xs font-medium text-slate-600">{item.subject}</td>
+                          <td className="py-3 px-4 text-xs font-medium text-slate-600 dark:text-slate-400">{item.subject}</td>
                           <td className="py-3 px-4">
                             <div className="inline-flex rounded-xl p-1 bg-slate-100 border border-slate-200 gap-1">
                               <button
@@ -467,10 +467,10 @@ export default function AdminDashboard() {
 
         {/* TAB 2: ATTENDANCE SUMMARY & PERCENTAGES */}
         {activeTab === 'summary' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-6">
             <div>
-              <h2 className="text-xl font-black text-slate-800">Attendance Percentage Report</h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <h2 className="text-xl font-black text-slate-800 dark:text-white">Attendance Percentage Report</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Overview of student attendance percentages and class metrics
               </p>
             </div>
@@ -488,19 +488,19 @@ export default function AdminDashboard() {
                     <th className="py-3 px-4">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {attendanceList.map((item) => {
                     const pct = item.attendancePercentage ?? 0;
                     const isGood = pct >= 75;
                     const isWarning = pct >= 60 && pct < 75;
 
                     return (
-                      <tr key={item.id} className="hover:bg-slate-50/60 transition">
-                        <td className="py-3 px-4 font-mono text-xs font-semibold text-slate-600">
+                      <tr key={item.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition">
+                        <td className="py-3 px-4 font-mono text-xs font-semibold text-slate-600 dark:text-slate-400">
                           #{item.rollno}
                         </td>
-                        <td className="py-3 px-4 font-semibold text-slate-800">{item.name}</td>
-                        <td className="py-3 px-4 text-xs font-medium text-slate-600">{item.totalClasses}</td>
+                        <td className="py-3 px-4 font-semibold text-slate-800 dark:text-slate-100">{item.name}</td>
+                        <td className="py-3 px-4 text-xs font-medium text-slate-600 dark:text-slate-400">{item.totalClasses}</td>
                         <td className="py-3 px-4 text-xs font-semibold text-emerald-600">{item.presentDays}</td>
                         <td className="py-3 px-4 text-xs font-semibold text-rose-600">{item.absentDays}</td>
                         <td className="py-3 px-4">
@@ -540,11 +540,11 @@ export default function AdminDashboard() {
 
         {/* TAB 3: STUDENTS DIRECTORY (CRUD) */}
         {activeTab === 'students' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-black text-slate-800">Student Directory</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Manage student accounts and credentials</p>
+                <h2 className="text-xl font-black text-slate-800 dark:text-white">Student Directory</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage student accounts and credentials</p>
               </div>
 
               <div className="flex items-center space-x-3">
@@ -581,7 +581,7 @@ export default function AdminDashboard() {
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {loadingStudents ? (
                     <>
                       <TableRowSkeleton cols={6} />
@@ -590,19 +590,19 @@ export default function AdminDashboard() {
                     </>
                   ) : filteredStudents.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="text-center py-12 text-slate-400">
+                      <td colSpan="6" className="text-center py-12 text-slate-400 dark:text-slate-500">
                         No students matching search filter.
                       </td>
                     </tr>
                   ) : (
                     filteredStudents.map((s) => (
-                      <tr key={s.id} className="hover:bg-slate-50/60 transition">
+                      <tr key={s.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition">
                         <td className="py-3 px-4 font-mono font-semibold text-xs text-slate-600">
                           #{s.rollno}
                         </td>
-                        <td className="py-3 px-4 font-semibold text-slate-800">{s.name}</td>
+                        <td className="py-3 px-4 font-semibold text-slate-800 dark:text-slate-100">{s.name}</td>
                         <td className="py-3 px-4 text-xs text-slate-500">{s.email}</td>
-                        <td className="py-3 px-4 text-xs font-medium text-slate-600">{s.subject}</td>
+                        <td className="py-3 px-4 text-xs font-medium text-slate-600 dark:text-slate-400">{s.subject}</td>
                         <td className="py-3 px-4 text-xs text-slate-500">{s.age} yrs</td>
                         <td className="py-3 px-4 text-right space-x-1">
                           <button
@@ -647,10 +647,10 @@ export default function AdminDashboard() {
 
         {/* TAB 4: TRASH & ARCHIVE */}
         {activeTab === 'trash' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-6">
             <div>
-              <h2 className="text-xl font-black text-slate-800">Trash / Archived Students</h2>
-              <p className="text-xs text-slate-500 mt-0.5">Restore soft-deleted students or permanently remove them</p>
+              <h2 className="text-xl font-black text-slate-800 dark:text-white">Trash / Archived Students</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Restore soft-deleted students or permanently remove them</p>
             </div>
 
             <div className="overflow-x-auto">
@@ -664,16 +664,16 @@ export default function AdminDashboard() {
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {deletedStudents.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-12 text-slate-400">
+                      <td colSpan="5" className="text-center py-12 text-slate-400 dark:text-slate-500">
                         Trash is empty. No archived students.
                       </td>
                     </tr>
                   ) : (
                     deletedStudents.map((s) => (
-                      <tr key={s.id} className="hover:bg-slate-50/60 transition">
+                      <tr key={s.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition">
                         <td className="py-3 px-4 font-mono font-semibold text-xs text-slate-500">
                           #{s.rollno}
                         </td>
@@ -708,18 +708,18 @@ export default function AdminDashboard() {
 
       {/* ADD / EDIT STUDENT MODAL */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 animate-slide-up">
-            <h3 className="text-xl font-bold text-slate-800 mb-1">
+        <div className="fixed inset-0 z-50 bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-700 animate-slide-up">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-1">
               {editingStudent ? 'Edit Student' : 'Add New Student'}
             </h3>
-            <p className="text-xs text-slate-500 mb-6">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
               Enter the student profile details below. Default password will be their Roll Number.
             </p>
 
             <form onSubmit={handleSaveStudent} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
                 <input
                   type="text"
                   required
@@ -732,7 +732,7 @@ export default function AdminDashboard() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Roll Number</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Roll Number</label>
                   <input
                     type="number"
                     required
@@ -744,7 +744,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Age</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Age</label>
                   <input
                     type="number"
                     required
@@ -759,7 +759,7 @@ export default function AdminDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
                 <input
                   type="email"
                   required
@@ -771,7 +771,7 @@ export default function AdminDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Subject / Course</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Subject / Course</label>
                 <input
                   type="text"
                   required
@@ -783,7 +783,7 @@ export default function AdminDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Login Password (leave blank to use Roll Number)
                 </label>
                 <input
