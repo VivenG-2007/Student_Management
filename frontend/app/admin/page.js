@@ -254,14 +254,14 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 flex flex-col transition-colors">
       <Navbar role="ADMIN" user={adminUser} />
 
       {/* Floating Toast Notification */}
       {toast && (
-        <div className="fixed top-20 right-6 z-50 animate-slide-up">
+        <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-6 sm:top-20 z-50 animate-slide-up flex justify-center sm:justify-end pointer-events-none">
           <div
-            className={`px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-sm text-white ${
+            className={`px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs sm:text-sm text-white pointer-events-auto ${
               toast.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'
             }`}
           >
@@ -270,15 +270,15 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Navigation Tabs Header */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-2 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-wrap gap-1">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-4 sm:space-y-6">
+        {/* Navigation Tabs Header - horizontally scrollable on mobile */}
+        <div className="bg-white dark:bg-[#0a0a0a] rounded-xl sm:rounded-2xl p-1.5 border border-zinc-200 dark:border-zinc-800 shadow-sm flex overflow-x-auto no-scrollbar gap-1 sm:gap-1.5">
           <button
             onClick={() => setActiveTab('attendance')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+            className={`whitespace-nowrap flex-shrink-0 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
               activeTab === 'attendance'
                 ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900'
             }`}
           >
             <span>📅 Mark Attendance</span>
@@ -286,10 +286,10 @@ export default function AdminDashboard() {
 
           <button
             onClick={() => setActiveTab('summary')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+            className={`whitespace-nowrap flex-shrink-0 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
               activeTab === 'summary'
                 ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900'
             }`}
           >
             <span>📊 Attendance Summary %</span>
@@ -297,28 +297,28 @@ export default function AdminDashboard() {
 
           <button
             onClick={() => setActiveTab('students')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+            className={`whitespace-nowrap flex-shrink-0 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
               activeTab === 'students'
                 ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900'
             }`}
           >
             <span>👥 Students Directory</span>
-            <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] px-1.5 py-0.5 rounded-full font-mono">
+            <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-[10px] px-1.5 py-0.5 rounded-full font-mono">
               {students.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab('trash')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+            className={`whitespace-nowrap flex-shrink-0 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
               activeTab === 'trash'
                 ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900'
             }`}
           >
             <span>🗑️ Trash</span>
-            <span className="bg-rose-100 text-rose-700 text-[10px] px-1.5 py-0.5 rounded-full font-mono">
+            <span className="bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] px-1.5 py-0.5 rounded-full font-mono">
               {deletedStudents.length}
             </span>
           </button>
@@ -326,24 +326,24 @@ export default function AdminDashboard() {
 
         {/* TAB 1: MARK ATTENDANCE */}
         {activeTab === 'attendance' && (
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4 border-b border-zinc-100 dark:border-zinc-800">
               <div>
-                <h2 className="text-xl font-black text-slate-800 dark:text-white">Mark Daily Attendance</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <h2 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white">Mark Daily Attendance</h2>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                   Select a date and toggle student attendance status
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 {/* Date Picker */}
-                <div className="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Date:</span>
+                <div className="flex items-center space-x-2 bg-zinc-50 dark:bg-[#141414] px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                  <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Date:</span>
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => handleDateChange(e.target.value)}
-                    className="text-xs font-medium bg-transparent border-0 focus:outline-none cursor-pointer dark:text-slate-200 dark:[color-scheme:dark]"
+                    className="text-xs font-medium bg-transparent border-0 focus:outline-none cursor-pointer text-zinc-900 dark:text-zinc-100 [color-scheme:light] dark:[color-scheme:dark]"
                   />
                 </div>
 
@@ -351,14 +351,14 @@ export default function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => handleBulkMark('PRESENT')}
-                  className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition"
+                  className="px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 transition"
                 >
                   ✓ All Present
                 </button>
                 <button
                   type="button"
                   onClick={() => handleBulkMark('ABSENT')}
-                  className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition"
+                  className="px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl bg-rose-500/10 text-rose-700 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition"
                 >
                   ✕ All Absent
                 </button>
@@ -368,7 +368,7 @@ export default function AdminDashboard() {
                   type="button"
                   disabled={savingAttendance}
                   onClick={handleSaveAttendance}
-                  className="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-100 flex items-center space-x-1.5 transition active:scale-95 disabled:opacity-60"
+                  className="w-full sm:w-auto px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 flex items-center justify-center space-x-1.5 transition active:scale-95 disabled:opacity-60"
                 >
                   {savingAttendance ? <Spinner size="xs" className="border-t-white" /> : null}
                   <span>Save Attendance</span>
@@ -377,18 +377,18 @@ export default function AdminDashboard() {
             </div>
 
             {/* Attendance Marking Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full text-left text-xs sm:text-sm min-w-[620px]">
                 <thead>
-                  <tr className="border-b border-slate-100 dark:border-slate-800 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                    <th className="py-3 px-4">Roll</th>
-                    <th className="py-3 px-4">Student</th>
-                    <th className="py-3 px-4">Course</th>
-                    <th className="py-3 px-4">Status for {selectedDate}</th>
-                    <th className="py-3 px-4">Remarks</th>
+                  <tr className="border-b border-zinc-100 dark:border-zinc-800 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+                    <th className="py-3 px-3 sm:px-4">Roll</th>
+                    <th className="py-3 px-3 sm:px-4">Student</th>
+                    <th className="py-3 px-3 sm:px-4">Course</th>
+                    <th className="py-3 px-3 sm:px-4">Status for {selectedDate}</th>
+                    <th className="py-3 px-3 sm:px-4">Remarks</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
                   {loadingAttendance ? (
                     <>
                       <TableRowSkeleton cols={5} />
@@ -397,7 +397,7 @@ export default function AdminDashboard() {
                     </>
                   ) : attendanceList.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-12 text-slate-400 dark:text-slate-500">
+                      <td colSpan="5" className="text-center py-12 text-zinc-400">
                         No active students found in directory. Add students to begin marking attendance.
                       </td>
                     </tr>
@@ -406,24 +406,24 @@ export default function AdminDashboard() {
                       const currentStatus = attendanceChanges[item.id] || 'PRESENT';
 
                       return (
-                        <tr key={item.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition">
-                          <td className="py-3 px-4 font-mono text-xs font-semibold text-slate-600 dark:text-slate-400">
+                        <tr key={item.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition">
+                          <td className="py-3 px-3 sm:px-4 font-mono text-xs font-semibold text-zinc-600 dark:text-zinc-400">
                             #{item.rollno}
                           </td>
-                          <td className="py-3 px-4">
-                            <div className="font-semibold text-slate-800 dark:text-slate-100">{item.name}</div>
-                            <div className="text-xs text-slate-400 dark:text-slate-500">{item.email}</div>
+                          <td className="py-3 px-3 sm:px-4">
+                            <div className="font-semibold text-zinc-900 dark:text-white">{item.name}</div>
+                            <div className="text-[11px] text-zinc-500">{item.email}</div>
                           </td>
-                          <td className="py-3 px-4 text-xs font-medium text-slate-600 dark:text-slate-400">{item.subject}</td>
-                          <td className="py-3 px-4">
-                            <div className="inline-flex rounded-xl p-1 bg-slate-100 border border-slate-200 gap-1">
+                          <td className="py-3 px-3 sm:px-4 text-xs font-medium text-zinc-600 dark:text-zinc-300">{item.subject}</td>
+                          <td className="py-3 px-3 sm:px-4">
+                            <div className="inline-flex rounded-xl p-1 bg-zinc-100 dark:bg-[#141414] border border-zinc-200 dark:border-zinc-800 gap-1">
                               <button
                                 type="button"
                                 onClick={() => handleToggleAttendance(item.id, 'PRESENT')}
-                                className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold transition ${
                                   currentStatus === 'PRESENT'
                                     ? 'bg-emerald-600 text-white shadow-sm'
-                                    : 'text-slate-600 hover:text-emerald-700'
+                                    : 'text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400'
                                 }`}
                               >
                                 Present
@@ -431,17 +431,17 @@ export default function AdminDashboard() {
                               <button
                                 type="button"
                                 onClick={() => handleToggleAttendance(item.id, 'ABSENT')}
-                                className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold transition ${
                                   currentStatus === 'ABSENT'
                                     ? 'bg-rose-600 text-white shadow-sm'
-                                    : 'text-slate-600 hover:text-rose-700'
+                                    : 'text-zinc-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400'
                                 }`}
                               >
                                 Absent
                               </button>
                             </div>
                           </td>
-                          <td className="py-3 px-4">
+                          <td className="py-3 px-3 sm:px-4">
                             <input
                               type="text"
                               placeholder="Optional remarks..."
@@ -452,7 +452,7 @@ export default function AdminDashboard() {
                                   [item.id]: e.target.value,
                                 }))
                               }
-                              className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-full max-w-[200px]"
+                              className="text-xs px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-[#141414] text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-full max-w-[180px]"
                             />
                           </td>
                         </tr>
@@ -467,45 +467,45 @@ export default function AdminDashboard() {
 
         {/* TAB 2: ATTENDANCE SUMMARY & PERCENTAGES */}
         {activeTab === 'summary' && (
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-6">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4 sm:space-y-6">
             <div>
-              <h2 className="text-xl font-black text-slate-800 dark:text-white">Attendance Percentage Report</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <h2 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white">Attendance Percentage Report</h2>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                 Overview of student attendance percentages and class metrics
               </p>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full text-left text-xs sm:text-sm min-w-[580px]">
                 <thead>
-                  <tr className="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    <th className="py-3 px-4">Roll</th>
-                    <th className="py-3 px-4">Student Name</th>
-                    <th className="py-3 px-4">Total Sessions</th>
-                    <th className="py-3 px-4">Present</th>
-                    <th className="py-3 px-4">Absent</th>
-                    <th className="py-3 px-4">Attendance %</th>
-                    <th className="py-3 px-4">Status</th>
+                  <tr className="border-b border-zinc-100 dark:border-zinc-800 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+                    <th className="py-3 px-3 sm:px-4">Roll</th>
+                    <th className="py-3 px-3 sm:px-4">Student Name</th>
+                    <th className="py-3 px-3 sm:px-4">Total</th>
+                    <th className="py-3 px-3 sm:px-4">Present</th>
+                    <th className="py-3 px-3 sm:px-4">Absent</th>
+                    <th className="py-3 px-3 sm:px-4">Attendance %</th>
+                    <th className="py-3 px-3 sm:px-4">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
                   {attendanceList.map((item) => {
                     const pct = item.attendancePercentage ?? 0;
                     const isGood = pct >= 75;
                     const isWarning = pct >= 60 && pct < 75;
 
                     return (
-                      <tr key={item.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition">
-                        <td className="py-3 px-4 font-mono text-xs font-semibold text-slate-600 dark:text-slate-400">
+                      <tr key={item.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition">
+                        <td className="py-3 px-3 sm:px-4 font-mono text-xs font-semibold text-zinc-600 dark:text-zinc-400">
                           #{item.rollno}
                         </td>
-                        <td className="py-3 px-4 font-semibold text-slate-800 dark:text-slate-100">{item.name}</td>
-                        <td className="py-3 px-4 text-xs font-medium text-slate-600 dark:text-slate-400">{item.totalClasses}</td>
-                        <td className="py-3 px-4 text-xs font-semibold text-emerald-600">{item.presentDays}</td>
-                        <td className="py-3 px-4 text-xs font-semibold text-rose-600">{item.absentDays}</td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-900 dark:text-white">{item.name}</td>
+                        <td className="py-3 px-3 sm:px-4 text-xs font-medium text-zinc-600 dark:text-zinc-400">{item.totalClasses}</td>
+                        <td className="py-3 px-3 sm:px-4 text-xs font-semibold text-emerald-600 dark:text-emerald-400">{item.presentDays}</td>
+                        <td className="py-3 px-3 sm:px-4 text-xs font-semibold text-rose-600 dark:text-rose-400">{item.absentDays}</td>
+                        <td className="py-3 px-3 sm:px-4">
                           <div className="flex items-center space-x-2">
-                            <div className="w-24 bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div className="w-20 sm:w-24 bg-zinc-200 dark:bg-zinc-800 rounded-full h-2 overflow-hidden">
                               <div
                                 className={`h-full rounded-full ${
                                   isGood ? 'bg-emerald-500' : isWarning ? 'bg-amber-500' : 'bg-rose-500'
@@ -513,17 +513,17 @@ export default function AdminDashboard() {
                                 style={{ width: `${Math.min(pct, 100)}%` }}
                               ></div>
                             </div>
-                            <span className="text-xs font-bold text-slate-700">{pct}%</span>
+                            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">{pct}%</span>
                           </div>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-3 sm:px-4">
                           <span
                             className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                               isGood
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20'
                                 : isWarning
-                                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                : 'bg-rose-50 text-rose-700 border-rose-200'
+                                ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20'
+                                : 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20'
                             }`}
                           >
                             {isGood ? 'Eligible (>= 75%)' : isWarning ? 'Warning (< 75%)' : 'Critical (< 60%)'}
@@ -540,26 +540,26 @@ export default function AdminDashboard() {
 
         {/* TAB 3: STUDENTS DIRECTORY (CRUD) */}
         {activeTab === 'students' && (
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
               <div>
-                <h2 className="text-xl font-black text-slate-800 dark:text-white">Student Directory</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage student accounts and credentials</p>
+                <h2 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white">Student Directory</h2>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Manage student accounts and credentials</p>
               </div>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto">
                 <input
                   type="text"
                   placeholder="Filter students..."
                   value={studentSearch}
                   onChange={(e) => setStudentSearch(e.target.value)}
-                  className="text-xs px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48 sm:w-60"
+                  className="text-xs px-3.5 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-[#141414] text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex-1 sm:w-60"
                 />
 
                 <button
                   type="button"
                   onClick={handleOpenAddModal}
-                  className="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-100 flex items-center space-x-1.5 transition active:scale-95"
+                  className="whitespace-nowrap px-3.5 sm:px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 flex items-center space-x-1.5 transition active:scale-95"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -569,19 +569,19 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full text-left text-xs sm:text-sm min-w-[550px]">
                 <thead>
-                  <tr className="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    <th className="py-3 px-4">Roll</th>
-                    <th className="py-3 px-4">Full Name</th>
-                    <th className="py-3 px-4">Email</th>
-                    <th className="py-3 px-4">Course</th>
-                    <th className="py-3 px-4">Age</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
+                  <tr className="border-b border-zinc-100 dark:border-zinc-800 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+                    <th className="py-3 px-3 sm:px-4">Roll</th>
+                    <th className="py-3 px-3 sm:px-4">Full Name</th>
+                    <th className="py-3 px-3 sm:px-4">Email</th>
+                    <th className="py-3 px-3 sm:px-4">Course</th>
+                    <th className="py-3 px-3 sm:px-4">Age</th>
+                    <th className="py-3 px-3 sm:px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
                   {loadingStudents ? (
                     <>
                       <TableRowSkeleton cols={6} />
@@ -590,25 +590,25 @@ export default function AdminDashboard() {
                     </>
                   ) : filteredStudents.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="text-center py-12 text-slate-400 dark:text-slate-500">
+                      <td colSpan="6" className="text-center py-12 text-zinc-400">
                         No students matching search filter.
                       </td>
                     </tr>
                   ) : (
                     filteredStudents.map((s) => (
-                      <tr key={s.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition">
-                        <td className="py-3 px-4 font-mono font-semibold text-xs text-slate-600">
+                      <tr key={s.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition">
+                        <td className="py-3 px-3 sm:px-4 font-mono font-semibold text-xs text-zinc-600 dark:text-zinc-400">
                           #{s.rollno}
                         </td>
-                        <td className="py-3 px-4 font-semibold text-slate-800 dark:text-slate-100">{s.name}</td>
-                        <td className="py-3 px-4 text-xs text-slate-500">{s.email}</td>
-                        <td className="py-3 px-4 text-xs font-medium text-slate-600 dark:text-slate-400">{s.subject}</td>
-                        <td className="py-3 px-4 text-xs text-slate-500">{s.age} yrs</td>
-                        <td className="py-3 px-4 text-right space-x-1">
+                        <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-900 dark:text-white">{s.name}</td>
+                        <td className="py-3 px-3 sm:px-4 text-xs text-zinc-500">{s.email}</td>
+                        <td className="py-3 px-3 sm:px-4 text-xs font-medium text-zinc-600 dark:text-zinc-300">{s.subject}</td>
+                        <td className="py-3 px-3 sm:px-4 text-xs text-zinc-500">{s.age} yrs</td>
+                        <td className="py-3 px-3 sm:px-4 text-right space-x-1">
                           <button
                             type="button"
                             onClick={() => handleOpenEditModal(s)}
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+                            className="p-1.5 rounded-lg text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-500/10 transition"
                             title="Edit"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -618,7 +618,7 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleSoftDelete(s.id, s.name)}
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-amber-600 hover:bg-amber-50 transition"
+                            className="p-1.5 rounded-lg text-zinc-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 transition"
                             title="Move to Trash"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -628,7 +628,7 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleHardDelete(s.id, s.name)}
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition"
+                            className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition"
                             title="Delete Permanently"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -647,53 +647,53 @@ export default function AdminDashboard() {
 
         {/* TAB 4: TRASH & ARCHIVE */}
         {activeTab === 'trash' && (
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-6">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4 sm:space-y-6">
             <div>
-              <h2 className="text-xl font-black text-slate-800 dark:text-white">Trash / Archived Students</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Restore soft-deleted students or permanently remove them</p>
+              <h2 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white">Trash / Archived Students</h2>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Restore soft-deleted students or permanently remove them</p>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full text-left text-xs sm:text-sm min-w-[500px]">
                 <thead>
-                  <tr className="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    <th className="py-3 px-4">Roll</th>
-                    <th className="py-3 px-4">Student Name</th>
-                    <th className="py-3 px-4">Email</th>
-                    <th className="py-3 px-4">Course</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
+                  <tr className="border-b border-zinc-100 dark:border-zinc-800 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+                    <th className="py-3 px-3 sm:px-4">Roll</th>
+                    <th className="py-3 px-3 sm:px-4">Student Name</th>
+                    <th className="py-3 px-3 sm:px-4">Email</th>
+                    <th className="py-3 px-3 sm:px-4">Course</th>
+                    <th className="py-3 px-3 sm:px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
                   {deletedStudents.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-12 text-slate-400 dark:text-slate-500">
+                      <td colSpan="5" className="text-center py-12 text-zinc-400">
                         Trash is empty. No archived students.
                       </td>
                     </tr>
                   ) : (
                     deletedStudents.map((s) => (
-                      <tr key={s.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition">
-                        <td className="py-3 px-4 font-mono font-semibold text-xs text-slate-500">
+                      <tr key={s.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition">
+                        <td className="py-3 px-3 sm:px-4 font-mono font-semibold text-xs text-zinc-500">
                           #{s.rollno}
                         </td>
-                        <td className="py-3 px-4 font-semibold text-slate-700">{s.name}</td>
-                        <td className="py-3 px-4 text-xs text-slate-500">{s.email}</td>
-                        <td className="py-3 px-4 text-xs font-medium text-slate-500">{s.subject}</td>
-                        <td className="py-3 px-4 text-right space-x-2">
+                        <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-800 dark:text-zinc-200">{s.name}</td>
+                        <td className="py-3 px-3 sm:px-4 text-xs text-zinc-500">{s.email}</td>
+                        <td className="py-3 px-3 sm:px-4 text-xs font-medium text-zinc-500">{s.subject}</td>
+                        <td className="py-3 px-3 sm:px-4 text-right space-x-2">
                           <button
                             type="button"
                             onClick={() => handleRestore(s.id, s.name)}
-                            className="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition"
+                            className="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 transition"
                           >
                             Restore
                           </button>
                           <button
                             type="button"
                             onClick={() => handleHardDelete(s.id, s.name)}
-                            className="px-3 py-1 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition"
+                            className="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold bg-rose-500/10 text-rose-700 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition"
                           >
-                            Delete Permanently
+                            Delete
                           </button>
                         </td>
                       </tr>
@@ -708,31 +708,31 @@ export default function AdminDashboard() {
 
       {/* ADD / EDIT STUDENT MODAL */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-700 animate-slide-up">
-            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-1">
-              {editingStudent ? 'Edit Student' : 'Add New Student'}
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white dark:bg-[#0c0c0c] rounded-2xl sm:rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-slide-up">
+            <h3 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white mb-1">
+              {editingStudent ? 'Edit Student Record' : 'Add New Student'}
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
-              Enter the student profile details below. Default password will be their Roll Number.
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-5">
+              Enter the student details below. Default password is their Roll Number.
             </p>
 
-            <form onSubmit={handleSaveStudent} className="space-y-4">
+            <form onSubmit={handleSaveStudent} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Full Name</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Sneha Patel"
-                  className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-[#141414] text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Roll Number</label>
+                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Roll Number</label>
                   <input
                     type="number"
                     required
@@ -740,11 +740,11 @@ export default function AdminDashboard() {
                     value={formData.rollno}
                     onChange={(e) => setFormData({ ...formData, rollno: e.target.value })}
                     placeholder="e.g. 105"
-                    className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-[#141414] text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Age</label>
+                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Age</label>
                   <input
                     type="number"
                     required
@@ -753,53 +753,53 @@ export default function AdminDashboard() {
                     value={formData.age}
                     onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                     placeholder="e.g. 21"
-                    className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-[#141414] text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Email Address</label>
                 <input
                   type="email"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="e.g. sneha@example.com"
-                  className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-[#141414] text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Subject / Course</label>
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Subject / Course</label>
                 <input
                   type="text"
                   required
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   placeholder="e.g. Data Science"
-                  className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-[#141414] text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Login Password (leave blank to use Roll Number)
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                  Login Password (leave blank to use Roll No)
                 </label>
                 <input
                   type="text"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="Optional custom password"
-                  className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-[#141414] text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
-              <div className="flex justify-end space-x-2 pt-4">
+              <div className="flex justify-end space-x-2 pt-3">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition"
+                  className="px-4 py-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition"
                 >
                   Cancel
                 </button>
@@ -819,4 +819,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-

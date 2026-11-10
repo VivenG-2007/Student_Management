@@ -2,7 +2,7 @@
 
 export function CardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm relative overflow-hidden">
+    <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl p-5 sm:p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden">
       <div className="flex items-center space-x-4">
         <div className="w-12 h-12 rounded-xl skeleton-shimmer"></div>
         <div className="flex-1 space-y-2">
@@ -16,7 +16,7 @@ export function CardSkeleton() {
 
 export function TableRowSkeleton({ cols = 6 }) {
   return (
-    <tr className="border-b border-slate-100">
+    <tr className="border-b border-zinc-100 dark:border-zinc-800/80">
       {Array.from({ length: cols }).map((_, i) => (
         <td key={i} className="py-4 px-4">
           <div className="h-4 rounded skeleton-shimmer w-full max-w-[120px]"></div>
@@ -36,7 +36,7 @@ export function Spinner({ size = 'sm', className = '' }) {
 
   return (
     <div
-      className={`inline-block rounded-full border-slate-300 border-t-indigo-600 animate-spin ${
+      className={`inline-block rounded-full border-zinc-300 dark:border-zinc-700 border-t-indigo-600 animate-spin ${
         sizeClasses[size] || sizeClasses.sm
       } ${className}`}
       role="status"
@@ -45,4 +45,3 @@ export function Spinner({ size = 'sm', className = '' }) {
     </div>
   );
 }
-
