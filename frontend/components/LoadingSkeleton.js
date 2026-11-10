@@ -45,3 +45,4 @@ export function Spinner({ size = 'sm', className = '' }) {
     </div>
   );
 }
+

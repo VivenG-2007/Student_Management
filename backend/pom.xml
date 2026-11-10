@@ -12,7 +12,7 @@
 	<artifactId>CRUDSpringBootDemo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>CRUDSpringBootDemo</name>
-	<description>Student Management System with Spring Boot and PostgreSQL</description>
+	<description>Student and Attendance Management REST API Backend</description>
 
 	<properties>
 		<java.version>21</java.version>
@@ -26,10 +26,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 
 		<dependency>

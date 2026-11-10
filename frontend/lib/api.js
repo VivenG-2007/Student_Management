@@ -123,3 +123,4 @@ export const api = {
     return await request('/api/students/health');
   },
 };
+

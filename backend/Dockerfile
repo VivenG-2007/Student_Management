@@ -23,3 +23,4 @@ EXPOSE 8080
 
 # Configure JVM container memory limit (safe for Render 512MB free tier)
 ENTRYPOINT ["sh", "-c", "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Dserver.port=${PORT} -jar app.jar"]
+

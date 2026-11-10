@@ -155,3 +155,4 @@ export default function Navbar({ role, user }) {
     </>
   );
 }
+

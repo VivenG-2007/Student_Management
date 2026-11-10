@@ -98,3 +98,4 @@ public class Attendance {
         this.createdAt = createdAt;
     }
 }
+
