@@ -1,7 +1,10 @@
 # Student & Attendance Management System Deployment Guide
 
 This project is separated into two clean directories:
-- **`backend/`**: Java 21 Spring Boot 3.x REST API + PostgreSQL (Supabase) + Docker (deployed on **Render**)
+- **`backend/`**: Java 21 Spring Boot REST API + Dual Database Architecture:
+  - **Supabase (PostgreSQL)**: Student Records (CRUD, credentials, archived students) via Spring Data JPA
+  - **MongoDB Atlas**: Attendance Records (Daily logs, percentages, summaries) via Spring Data MongoDB
+  - Automatic Java startup migration runner that imports PostgreSQL attendance records into MongoDB Atlas
 - **`frontend/`**: Next.js 14/15 App Router + Tailwind CSS (deployed on **Vercel**)
 
 ---
@@ -49,6 +52,8 @@ This project is separated into two clean directories:
    | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require` | Supabase IPv4 Pooler URL |
    | `SPRING_DATASOURCE_USERNAME` | `postgres.vkfsgkryhbrzffqtffpj` | Database Username |
    | `SPRING_DATASOURCE_PASSWORD` | `viven123viven` | Database Password |
+   | `MONGODB_URI` | `mongodb+srv://25r11a05cm_db_user:T6TSXLvoXBN2cWeF@cluster0.9vczujb.mongodb.net/student_management?retryWrites=true&w=majority` | MongoDB Atlas Cluster URI |
+   | `MONGODB_DATABASE` | `student_management` | MongoDB Database Name |
    | `FRONTEND_URL` | `*` *(or your Vercel URL)* | Allowed CORS origin |
    | `ADMIN_USERNAME` | `admin` | Admin portal username |
    | `ADMIN_PASSWORD` | `admin123` | Admin portal password |

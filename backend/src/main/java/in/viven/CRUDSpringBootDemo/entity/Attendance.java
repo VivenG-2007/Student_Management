@@ -1,27 +1,26 @@
 package in.viven.CRUDSpringBootDemo.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "attendance", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"student_id", "date"})
-})
+@Document(collection = "attendance")
+@CompoundIndex(name = "student_date_idx", def = "{'studentId': 1, 'date': 1}", unique = true)
 public class Attendance {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    @Indexed
+    private Long studentId;
 
-    @Column(nullable = false)
+    @Indexed
     private LocalDate date;
 
-    @Column(nullable = false, length = 20)
     private String status; // "PRESENT" or "ABSENT"
 
     private String markedBy = "admin";
@@ -33,8 +32,8 @@ public class Attendance {
     public Attendance() {
     }
 
-    public Attendance(Student student, LocalDate date, String status, String markedBy, String remarks) {
-        this.student = student;
+    public Attendance(Long studentId, LocalDate date, String status, String markedBy, String remarks) {
+        this.studentId = studentId;
         this.date = date;
         this.status = status;
         this.markedBy = markedBy != null ? markedBy : "admin";
@@ -42,20 +41,20 @@ public class Attendance {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Student getStudent() {
-        return student;
+    public Long getStudentId() {
+        return studentId;
     }
 
-    public void setStudent(Student student) {
-        this.student = student;
+    public void setStudentId(Long studentId) {
+        this.studentId = studentId;
     }
 
     public LocalDate getDate() {
@@ -98,4 +97,3 @@ public class Attendance {
         this.createdAt = createdAt;
     }
 }
-

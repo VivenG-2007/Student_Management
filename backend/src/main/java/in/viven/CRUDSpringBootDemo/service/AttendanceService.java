@@ -2,10 +2,9 @@ package in.viven.CRUDSpringBootDemo.service;
 
 import in.viven.CRUDSpringBootDemo.entity.Attendance;
 import in.viven.CRUDSpringBootDemo.entity.Student;
-import in.viven.CRUDSpringBootDemo.repositories.AttendanceRepository;
-import in.viven.CRUDSpringBootDemo.repositories.StudentRepositories;
+import in.viven.CRUDSpringBootDemo.repositories.jpa.StudentRepositories;
+import in.viven.CRUDSpringBootDemo.repositories.mongo.AttendanceRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -21,7 +20,6 @@ public class AttendanceService {
         this.studentRepositories = studentRepositories;
     }
 
-    @Transactional
     public Attendance markAttendance(Long studentId, LocalDate date, String status, String remarks, String markedBy) {
         Student student = studentRepositories.findActiveById(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found with ID: " + studentId));
@@ -36,13 +34,12 @@ public class AttendanceService {
             if (remarks != null) record.setRemarks(remarks);
             record.setMarkedBy(markedBy != null ? markedBy : "admin");
         } else {
-            record = new Attendance(student, date, sanitizedStatus, markedBy, remarks);
+            record = new Attendance(student.getId(), date, sanitizedStatus, markedBy, remarks);
         }
 
         return attendanceRepository.save(record);
     }
 
-    @Transactional
     public List<Attendance> markBatchAttendance(List<Map<String, Object>> entries, LocalDate date, String markedBy) {
         List<Attendance> saved = new ArrayList<>();
         for (Map<String, Object> entry : entries) {
@@ -78,7 +75,7 @@ public class AttendanceService {
         for (Attendance a : records) {
             Map<String, Object> m = new HashMap<>();
             m.put("id", a.getId());
-            m.put("date", a.getDate().toString());
+            m.put("date", a.getDate() != null ? a.getDate().toString() : "");
             m.put("status", a.getStatus());
             m.put("remarks", a.getRemarks());
             m.put("markedBy", a.getMarkedBy());
@@ -106,7 +103,9 @@ public class AttendanceService {
 
         Map<Long, String> statusMapForDate = new HashMap<>();
         for (Attendance a : dateAttendances) {
-            statusMapForDate.put(a.getStudent().getId(), a.getStatus());
+            if (a.getStudentId() != null) {
+                statusMapForDate.put(a.getStudentId(), a.getStatus());
+            }
         }
 
         List<Map<String, Object>> overviewList = new ArrayList<>();
@@ -136,4 +135,3 @@ public class AttendanceService {
         return overviewList;
     }
 }
-

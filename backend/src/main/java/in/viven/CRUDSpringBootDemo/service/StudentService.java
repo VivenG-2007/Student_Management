@@ -1,7 +1,8 @@
 package in.viven.CRUDSpringBootDemo.service;
 
 import in.viven.CRUDSpringBootDemo.entity.Student;
-import in.viven.CRUDSpringBootDemo.repositories.StudentRepositories;
+import in.viven.CRUDSpringBootDemo.repositories.jpa.StudentRepositories;
+import in.viven.CRUDSpringBootDemo.repositories.mongo.AttendanceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,9 +12,11 @@ import java.util.Optional;
 public class StudentService {
 
     private final StudentRepositories studentRepositories;
+    private final AttendanceRepository attendanceRepository;
 
-    public StudentService(StudentRepositories studentRepositories) {
+    public StudentService(StudentRepositories studentRepositories, AttendanceRepository attendanceRepository) {
         this.studentRepositories = studentRepositories;
+        this.attendanceRepository = attendanceRepository;
     }
 
     public Student createStudent(Student studentreq) {
@@ -78,6 +81,10 @@ public class StudentService {
             return false;
         }
         studentRepositories.deleteById(id);
+        try {
+            attendanceRepository.deleteByStudentId(id);
+        } catch (Exception ignored) {
+        }
         return true;
     }
 

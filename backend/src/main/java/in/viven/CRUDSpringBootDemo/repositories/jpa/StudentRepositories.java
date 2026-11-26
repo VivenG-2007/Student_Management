@@ -1,4 +1,4 @@
-package in.viven.CRUDSpringBootDemo.repositories;
+package in.viven.CRUDSpringBootDemo.repositories.jpa;
 
 import in.viven.CRUDSpringBootDemo.entity.Student;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -14,5 +14,9 @@ services:
         value: postgres.vkfsgkryhbrzffqtffpj
       - key: SPRING_DATASOURCE_PASSWORD
         value: viven123viven
+      - key: MONGODB_URI
+        value: mongodb+srv://25r11a05cm_db_user:T6TSXLvoXBN2cWeF@cluster0.9vczujb.mongodb.net/student_management?retryWrites=true&w=majority
+      - key: MONGODB_DATABASE
+        value: student_management
       - key: FRONTEND_URL
         value: "*"

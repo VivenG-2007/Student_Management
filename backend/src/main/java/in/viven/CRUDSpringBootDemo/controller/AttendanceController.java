@@ -1,6 +1,7 @@
 package in.viven.CRUDSpringBootDemo.controller;
 
 import in.viven.CRUDSpringBootDemo.entity.Attendance;
+import in.viven.CRUDSpringBootDemo.migration.AttendanceMigrationService;
 import in.viven.CRUDSpringBootDemo.service.AttendanceService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,11 @@ import java.util.Map;
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
+    private final AttendanceMigrationService migrationService;
 
-    public AttendanceController(AttendanceService attendanceService) {
+    public AttendanceController(AttendanceService attendanceService, AttendanceMigrationService migrationService) {
         this.attendanceService = attendanceService;
+        this.migrationService = migrationService;
     }
 
     // Single student attendance marking
@@ -102,5 +105,11 @@ public class AttendanceController {
         List<Map<String, Object>> overview = attendanceService.getAllStudentsAttendanceOverview(date);
         return ResponseEntity.ok(overview);
     }
-}
 
+    // Migration trigger / status endpoint
+    @PostMapping("/migrate")
+    public ResponseEntity<Map<String, Object>> triggerMigration() {
+        Map<String, Object> result = migrationService.migrateFromPostgres();
+        return ResponseEntity.ok(result);
+    }
+}
