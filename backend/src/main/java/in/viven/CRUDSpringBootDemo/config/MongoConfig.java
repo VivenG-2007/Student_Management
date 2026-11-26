@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
+import javax.net.ssl.SSLContext;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -37,15 +38,26 @@ public class MongoConfig {
     public MongoClient mongoClient() {
         log.info("Configuring MongoDB Atlas MongoClient with URI: {}", maskUri(mongoUri));
         ConnectionString connectionString = new ConnectionString(mongoUri);
-        MongoClientSettings settings = MongoClientSettings.builder()
+
+        MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
                 .applyToSocketSettings(builder -> builder
-                        .connectTimeout(15, TimeUnit.SECONDS)
-                        .readTimeout(15, TimeUnit.SECONDS))
+                        .connectTimeout(20, TimeUnit.SECONDS)
+                        .readTimeout(20, TimeUnit.SECONDS))
                 .applyToClusterSettings(builder -> builder
-                        .serverSelectionTimeout(15, TimeUnit.SECONDS))
-                .build();
-        return MongoClients.create(settings);
+                        .serverSelectionTimeout(20, TimeUnit.SECONDS));
+
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+            sslContext.init(null, null, null);
+            settingsBuilder.applyToSslSettings(ssl -> ssl.enabled(true).context(sslContext));
+            log.info("Explicitly configured SSLContext to TLSv1.2 for MongoDB Atlas compatibility.");
+        } catch (Exception e) {
+            log.warn("Could not set explicit TLSv1.2 context, falling back to default SSL: {}", e.getMessage());
+            settingsBuilder.applyToSslSettings(ssl -> ssl.enabled(true));
+        }
+
+        return MongoClients.create(settingsBuilder.build());
     }
 
     @Bean

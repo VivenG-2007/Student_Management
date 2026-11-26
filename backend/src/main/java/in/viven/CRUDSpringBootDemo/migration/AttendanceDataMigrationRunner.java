@@ -20,12 +20,20 @@ public class AttendanceDataMigrationRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        log.info("Running automatic attendance data check / migration to MongoDB Atlas...");
-        try {
-            Map<String, Object> result = migrationService.migrateFromPostgres();
-            log.info("Attendance migration runner result: {}", result);
-        } catch (Exception e) {
-            log.warn("Attendance migration check encountered an error (application will continue): {}", e.getMessage());
-        }
+        // Run migration in a background thread so it never blocks container startup or health checks
+        Thread migrationThread = new Thread(() -> {
+            try {
+                // Short initial delay so Tomcat starts accepting health check traffic first
+                Thread.sleep(2000);
+                log.info("Running attendance data check / migration to MongoDB Atlas in background...");
+                Map<String, Object> result = migrationService.migrateFromPostgres();
+                log.info("Attendance migration background result: {}", result);
+            } catch (Exception e) {
+                log.warn("Attendance migration check encountered an issue: {}", e.getMessage());
+            }
+        }, "AttendanceMigrationWorker");
+
+        migrationThread.setDaemon(true);
+        migrationThread.start();
     }
 }

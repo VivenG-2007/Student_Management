@@ -2,17 +2,16 @@ package in.viven.CRUDSpringBootDemo.migration;
 
 import in.viven.CRUDSpringBootDemo.entity.Attendance;
 import in.viven.CRUDSpringBootDemo.repositories.mongo.AttendanceRepository;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AttendanceMigrationService {
@@ -21,20 +20,34 @@ public class AttendanceMigrationService {
 
     private final JdbcTemplate jdbcTemplate;
     private final AttendanceRepository attendanceRepository;
+    private final MongoTemplate mongoTemplate;
 
-    public AttendanceMigrationService(JdbcTemplate jdbcTemplate, AttendanceRepository attendanceRepository) {
+    public AttendanceMigrationService(JdbcTemplate jdbcTemplate,
+                                      AttendanceRepository attendanceRepository,
+                                      MongoTemplate mongoTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.attendanceRepository = attendanceRepository;
+        this.mongoTemplate = mongoTemplate;
     }
 
     public Map<String, Object> migrateFromPostgres() {
         Map<String, Object> result = new HashMap<>();
-        int migratedCount = 0;
-        int alreadyMigratedCount = 0;
-        int failedCount = 0;
+
+        // 1. Fast connectivity ping to MongoDB Atlas
+        try {
+            mongoTemplate.executeCommand(new Document("ping", 1));
+            log.info("Successfully pinged MongoDB Atlas cluster.");
+        } catch (Exception pingEx) {
+            log.error("MongoDB Atlas is NOT reachable from this environment! Reason: {}", pingEx.getMessage());
+            log.error("IMPORTANT: If running on Render or cloud, you MUST add '0.0.0.0/0' to MongoDB Atlas -> Network Access -> IP Access List.");
+            result.put("status", "UNREACHABLE");
+            result.put("error", pingEx.getMessage());
+            result.put("hint", "Add 0.0.0.0/0 (Allow access from anywhere) in MongoDB Atlas under Network Access -> IP Access List.");
+            return result;
+        }
 
         try {
-            // Check if postgres attendance table exists
+            // 2. Check if postgres attendance table exists in Supabase
             Integer tableCount = jdbcTemplate.queryForObject(
                     "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'attendance'",
                     Integer.class
@@ -48,7 +61,7 @@ public class AttendanceMigrationService {
                 return result;
             }
 
-            log.info("Starting migration of attendance records from Supabase PostgreSQL to MongoDB Atlas...");
+            log.info("Starting batch migration of attendance records from Supabase PostgreSQL to MongoDB Atlas...");
 
             List<Map<String, Object>> pgRecords = jdbcTemplate.query(
                     "SELECT id, student_id, date, status, marked_by, remarks, created_at FROM attendance ORDER BY id ASC",
@@ -67,42 +80,54 @@ public class AttendanceMigrationService {
 
             log.info("Found {} attendance records in Supabase PostgreSQL.", pgRecords.size());
 
-            for (Map<String, Object> row : pgRecords) {
-                try {
-                    Long studentId = (Long) row.get("student_id");
-                    LocalDate date = (LocalDate) row.get("date");
-                    String status = (String) row.get("status");
-                    String markedBy = (String) row.get("marked_by");
-                    String remarks = (String) row.get("remarks");
-
-                    if (studentId == null || date == null) {
-                        continue;
-                    }
-
-                    Optional<Attendance> existing = attendanceRepository.findByStudentIdAndDate(studentId, date);
-                    if (existing.isPresent()) {
-                        alreadyMigratedCount++;
-                    } else {
-                        Attendance mongoDoc = new Attendance(studentId, date, status, markedBy, remarks);
-                        attendanceRepository.save(mongoDoc);
-                        migratedCount++;
-                    }
-                } catch (Exception ex) {
-                    log.error("Failed to migrate record {}: {}", row.get("id"), ex.getMessage());
-                    failedCount++;
+            // 3. Fetch existing attendance records from Mongo once into memory
+            List<Attendance> existingDocs = attendanceRepository.findAll();
+            Set<String> existingKeys = new HashSet<>();
+            for (Attendance doc : existingDocs) {
+                if (doc.getStudentId() != null && doc.getDate() != null) {
+                    existingKeys.add(doc.getStudentId() + "_" + doc.getDate());
                 }
             }
 
+            List<Attendance> docsToInsert = new ArrayList<>();
+            int alreadyMigratedCount = 0;
+
+            for (Map<String, Object> row : pgRecords) {
+                Long studentId = (Long) row.get("student_id");
+                LocalDate date = (LocalDate) row.get("date");
+                String status = (String) row.get("status");
+                String markedBy = (String) row.get("marked_by");
+                String remarks = (String) row.get("remarks");
+
+                if (studentId == null || date == null) {
+                    continue;
+                }
+
+                String key = studentId + "_" + date;
+                if (existingKeys.contains(key)) {
+                    alreadyMigratedCount++;
+                } else {
+                    Attendance mongoDoc = new Attendance(studentId, date, status, markedBy, remarks);
+                    docsToInsert.add(mongoDoc);
+                    existingKeys.add(key); // prevent duplicate in same batch
+                }
+            }
+
+            // 4. Perform single bulk insert
+            if (!docsToInsert.isEmpty()) {
+                attendanceRepository.saveAll(docsToInsert);
+                log.info("Bulk-saved {} attendance records to MongoDB Atlas.", docsToInsert.size());
+            }
+
             long totalInMongo = attendanceRepository.count();
-            log.info("Migration complete: {} new records migrated, {} already existed, {} total records in MongoDB Atlas.",
-                    migratedCount, alreadyMigratedCount, totalInMongo);
+            log.info("Migration finished: {} new records migrated, {} already existed, {} total records in MongoDB Atlas.",
+                    docsToInsert.size(), alreadyMigratedCount, totalInMongo);
 
             result.put("status", "SUCCESS");
             result.put("source", "Supabase PostgreSQL");
             result.put("destination", "MongoDB Atlas");
-            result.put("migrated", migratedCount);
+            result.put("migrated", docsToInsert.size());
             result.put("alreadyMigrated", alreadyMigratedCount);
-            result.put("failed", failedCount);
             result.put("totalInMongo", totalInMongo);
             result.put("message", "Attendance migration to MongoDB Atlas finished successfully");
             return result;
@@ -111,8 +136,6 @@ public class AttendanceMigrationService {
             log.error("Error during attendance migration: {}", e.getMessage(), e);
             result.put("status", "ERROR");
             result.put("error", e.getMessage());
-            result.put("migrated", migratedCount);
-            result.put("totalInMongo", attendanceRepository.count());
             return result;
         }
     }

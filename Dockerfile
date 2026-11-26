@@ -17,10 +17,9 @@ WORKDIR /app
 # Copy jar from build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Render assigns a dynamic port via $PORT
-ENV PORT=8080
-EXPOSE 8080
+# Render assigns port 10000 by default or dynamically via $PORT
+ENV PORT=10000
+EXPOSE 10000
 
 # Configure JVM container memory limit (safe for Render 512MB free tier)
 ENTRYPOINT ["sh", "-c", "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Dserver.port=${PORT} -jar app.jar"]
-
